@@ -1,0 +1,14 @@
+/* Global Styling here */
+.multi-select {
+  width: 100% !important;
+  height: 48px !important;
+  align-items: center !important;
+}
+
+.multi-select .dropdown-container {
+  border: none !important;
+  background-color: #edf5fe !important;
+  border-radius: 8px !important;
+  height: 48px !important;
+  align-items: center !important;
+}
