@@ -8,7 +8,7 @@ export const userApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${baseUrl}`,
     prepareHeaders: (headers, { getState }) => {
-      const { token } = (getState() as RootState).app.auth;
+      const { token } = (getState() as RootState).auth;
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }
@@ -16,8 +16,9 @@ export const userApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['User'],
+  tagTypes: ['User', 'Department'],
   endpoints: (builder) => ({
+    // ---------------- USER ----------------
     getUserDetails: builder.query({
       query: () => ({
         url: `api/v1/User/me`,
@@ -27,19 +28,23 @@ export const userApi = createApi({
     }),
 
     getUserMe: builder.mutation({
-      query: (email) => ({
+      query: () => ({
         url: `api/v1/User/me`,
-        method: 'POST',
-        body: JSON.stringify(email),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: 'GET',
       }),
       invalidatesTags: ['User'],
     }),
 
+    // User POST (schema: { name, email, phoneNumber, address, role, departmentId })
     createUser: builder.mutation({
-      query: (body) => ({
+      query: (body: {
+        name: string;
+        email: string;
+        phoneNumber: string;
+        address: string;
+        role: number;
+        departmentId: string;
+      }) => ({
         url: `api/v1/User`,
         method: 'POST',
         body,
@@ -57,7 +62,7 @@ export const userApi = createApi({
     }),
 
     getUser: builder.query({
-      query: (id) => ({
+      query: (id: string) => ({
         url: `api/v1/User/${id}`,
         method: 'GET',
       }),
@@ -74,18 +79,11 @@ export const userApi = createApi({
     }),
 
     deleteUser: builder.mutation({
-      query: (id) => ({
+      query: (id: string) => ({
         url: `api/v1/User/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['User'],
-    }),
-
-    getUserDetailsLogin: builder.mutation({
-      query: () => ({
-        url: `api/Auth/user-details`,
-        method: 'POST',
-      }),
     }),
 
     getUserActivities: builder.query({
@@ -95,10 +93,67 @@ export const userApi = createApi({
         params,
       }),
     }),
+
+    // ---------------- DEPARTMENT ----------------
+    createDepartment: builder.mutation({
+      query: (body: {
+        name: string;
+        description: string;
+        code: string;
+      }) => ({
+        url: `api/v1/department`,
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Department'],
+    }),
+
+    getDepartments: builder.query({
+      query: (params) => ({
+        url: `api/v1/department`,
+        method: 'GET',
+        params,
+      }),
+      providesTags: ['Department'],
+    }),
+
+    getDepartmentById: builder.query({
+      query: (id: string) => ({
+        url: `api/v1/department/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['Department'],
+    }),
+
+    updateDepartment: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `api/v1/department/${id}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['Department'],
+    }),
+
+    deleteDepartment: builder.mutation({
+      query: (id: string) => ({
+        url: `api/v1/department/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Department'],
+    }),
+
+    getAllDepartments: builder.query({
+      query: () => ({
+        url: `api/v1/department/all`,
+        method: 'GET',
+      }),
+      providesTags: ['Department'],
+    }),
   }),
 });
 
 export const {
+  // User hooks
   useGetUserDetailsQuery,
   useGetUserMeMutation,
   useCreateUserMutation,
@@ -106,6 +161,13 @@ export const {
   useGetUserQuery,
   useUpdateUserMutation,
   useDeleteUserMutation,
-  useGetUserDetailsLoginMutation,
   useGetUserActivitiesQuery,
+
+  // Department hooks
+  useCreateDepartmentMutation,
+  useGetDepartmentsQuery,
+  useGetDepartmentByIdQuery,
+  useUpdateDepartmentMutation,
+  useDeleteDepartmentMutation,
+  useGetAllDepartmentsQuery,
 } = userApi;

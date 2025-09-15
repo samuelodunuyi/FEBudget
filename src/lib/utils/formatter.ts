@@ -557,6 +557,8 @@ export const dashboardStatusColor = (status: string) => {
       return { color: '#FF7926', bg: '#FFD3B7' };
     case 'Reviewed':
       return { color: '#47B65C', bg: '#B8FFAE' };
+       case 'Approved':
+      return { color: '#47B65C', bg: '#B8FFAE' };
     default:
       return { color: '#9CA3AF', bg: '#E5E7EB' };
   }

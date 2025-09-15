@@ -2,8 +2,6 @@
 
 import { Card, CardBody, Text, Stack, HStack } from '@chakra-ui/react';
 
-import { formatCardValue } from '~/lib/utils/formatter';
-
 interface DashboardCard2Props {
   description: string;
   value?: string;
@@ -11,6 +9,12 @@ interface DashboardCard2Props {
 }
 
 const StatCard2 = ({ description, value, bg }: DashboardCard2Props) => {
+  const formatAsInteger = (val?: string) => {
+    const n = Number(val);
+    if (!Number.isFinite(n)) return '0';
+    return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  };
+
   return (
     <Card
       variant="filled"
@@ -26,7 +30,7 @@ const StatCard2 = ({ description, value, bg }: DashboardCard2Props) => {
         <Stack direction="column" justifyContent="space-between" h="100%">
           <HStack justifyContent="space-between" w="100%">
             <Text fontSize={['xl', 'xl']} color="white" fontWeight="600">
-              {formatCardValue(Number(value))}
+              {formatAsInteger(value)}
             </Text>
           </HStack>
 

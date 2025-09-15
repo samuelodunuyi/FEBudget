@@ -1,6 +1,6 @@
 'use client';
 
-import { Text, VStack, SimpleGrid } from '@chakra-ui/react';
+import { Text, VStack, SimpleGrid, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -12,12 +12,26 @@ import DashboardHeader from '~/lib/components/layout/DashboardHeader';
 import SimpleDashboardLayout from '~/lib/components/layout/SimpleDashboardLayout';
 import Button from '~/lib/components/ui/Button';
 import Select2 from '~/lib/components/ui/Select2';
+import { useCreateBudgetMutation, useGetBudgetsQuery } from '~/lib/redux/services/budgetLine.service';
+import { useAppSelector } from '~/lib/redux/store';
 import { yearOptions } from '~/lib/utils/formatter';
 
 const Home = () => {
   const router = useRouter();
+  const toast = useToast();
+  const { userInfo } = useAppSelector((state) => state.auth);
+
+  const [createBudget, { isLoading }] = useCreateBudgetMutation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
+
+  // Fetch all budgets
+  const { data, isLoading: isLoadingBudgets, isError } = useGetBudgetsQuery(undefined);
+
+  // Filter budgets by current user's department
+  const departmentBudgets = data?.data?.result.filter(
+    (b) => b.department?.id === userInfo?.department?.id
+  );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -31,7 +45,35 @@ const Home = () => {
     }
   };
 
-  const isSubmitDisabled = !selectedFile;
+  const handleSubmit = async () => {
+    if (!selectedFile) return;
+    try {
+      await createBudget({
+        Year: new Date().getFullYear(),
+        File: selectedFile,
+        Narration: `${userInfo?.department?.name} Budget Upload`,
+        DepartmentId: userInfo?.department?.id || '',
+      }).unwrap();
+
+      toast({
+        title: 'Budget submitted successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      setSelectedFile(null);
+      setSelectedFileName('');
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.data?.message || error?.message || 'Failed to submit budget',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
 
   const handleDashboard = () => {
     router.push('/dashboard');
@@ -39,38 +81,29 @@ const Home = () => {
 
   return (
     <SimpleDashboardLayout>
-      <DashboardHeader title="Welcome, Tunde 👋" />
+      <DashboardHeader />
 
       <VStack alignItems="stretch" spacing={6} w="full" mt={4}>
         <SimpleGrid columns={[1, 10]} spacing={4} w="full">
-          <Select2
-            name="year"
-            options={yearOptions()}
-            placeholder="Select Year"
-            size="md"
-          />
-          <Button
-            text="Dashboard"
-            size="md"
-            px={14}
-            onClick={handleDashboard}
-          />
+          <Select2 name="year" options={yearOptions()} placeholder="Select Year" size="md" />
+          <Button text="Dashboard" size="md" px={14} onClick={handleDashboard} />
         </SimpleGrid>
 
         <Text fontSize={['md', 'lg']} fontWeight="600" color="headText.100">
-          Information Technology
+          {userInfo?.department?.name || 'Unknown'}
         </Text>
 
         <UploadBudgetCard
           selectedFileName={selectedFileName}
-          isSubmitDisabled={isSubmitDisabled}
+          isSubmitDisabled={!selectedFile || isLoading}
           onFileChange={handleFileChange}
+          onSubmit={handleSubmit}
         />
 
         {/* Status and Version History */}
         <SimpleGrid columns={[1, 2]} spacing={4} w="full">
-          <SubmissionStatus />
-          <VersionHistory />
+          <SubmissionStatus budgets={departmentBudgets} isLoading={isLoadingBudgets} />
+          <VersionHistory budgets={departmentBudgets} isLoading={isLoadingBudgets} />
         </SimpleGrid>
 
         <Comments />

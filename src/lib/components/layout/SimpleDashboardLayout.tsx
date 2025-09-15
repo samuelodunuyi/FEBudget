@@ -27,7 +27,7 @@ interface TopNavProps extends FlexProps {
 }
 
 const TopNav = ({ onLogoutClick, ...props }: TopNavProps) => {
-  const { userInfo } = useAppSelector((state) => state.app.auth);
+  const { userInfo } = useAppSelector((state) => state.auth);
 
   return (
     <Flex
@@ -65,7 +65,7 @@ const TopNav = ({ onLogoutClick, ...props }: TopNavProps) => {
       >
         <VStack alignItems="flex-start" spacing={0}>
           <Text fontSize="md" color="#333333" fontWeight="600">
-            {userInfo?.firstName || 'User'}
+            {userInfo?.name || 'User'}
           </Text>
           <Text fontSize="12px" color="#333333" fontWeight="400" mt={-1}>
             {getRole(userInfo?.role)}
@@ -188,7 +188,7 @@ const Footer = () => {
 };
 
 const SimpleDashboardLayout = ({ children }: SimpleDashboardLayoutProps) => {
-  const { userInfo } = useAppSelector((state) => state.app.auth);
+  const { userInfo } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
 

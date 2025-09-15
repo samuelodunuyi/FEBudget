@@ -8,7 +8,7 @@ export const approvalApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `${baseUrl}`,
     prepareHeaders: (headers, { getState }) => {
-      const { token } = (getState() as RootState).app.auth;
+      const { token } = (getState() as RootState).auth;
       if (token) {
         headers.set('authorization', `Bearer ${token}`);
       }

@@ -2,17 +2,54 @@
 
 import { Box, HStack, Tag, Text, VStack } from '@chakra-ui/react';
 
-type SubmissionStatusProps = {
-  statusLabel?: string;
-  lastSubmitted?: string;
-  totalVersions?: number | string;
+type BudgetFile = {
+  id: string;
+  documentUrl: string;
+  version: number;
 };
 
-const SubmissionStatus = ({
-  statusLabel = 'Submitted',
-  lastSubmitted = 'Aug 29, 2025',
-  totalVersions = 2,
-}: SubmissionStatusProps) => {
+type Budget = {
+  id: string;
+  status: number;
+  createdAt: string;
+  budgetFiles: BudgetFile[];
+};
+
+type SubmissionStatusProps = {
+  budgets?: Budget[];
+  isLoading?: boolean;
+};
+
+const statusMap: Record<number, { label: string; bg: string; color: string }> = {
+  1: { label: 'Submitted', bg: '#FFD3B7', color: '#FF7926' },
+  2: { label: 'Pending Submission', bg: '#FFE9B7', color: '#FFAA26' },
+  3: { label: 'Approved', bg: '#D3FFD3', color: '#27A426' },
+};
+
+const SubmissionStatus = ({ budgets = [], isLoading = false }: SubmissionStatusProps) => {
+  if (isLoading) return <Text>Loading...</Text>;
+
+  if (!budgets.length)
+    return <Text>No budgets found for your department.</Text>;
+
+  // Assuming the latest budget is the one with the latest createdAt
+  const latestBudget = budgets.reduce((prev, curr) =>
+    new Date(curr.createdAt) > new Date(prev.createdAt) ? curr : prev
+  );
+
+  const status = statusMap[latestBudget.status] || {
+    label: 'Unknown',
+    bg: '#EDEDED',
+    color: '#808080',
+  };
+
+  const lastSubmitted = new Date(latestBudget.createdAt).toLocaleDateString(
+    'en-GB',
+    { day: 'numeric', month: 'short', year: 'numeric' }
+  );
+
+  const totalVersions = latestBudget.budgetFiles?.length || 0;
+
   return (
     <Box bg="white" rounded="16px" p={4} border="1px solid #EDEDED">
       <HStack spacing={3} mb={4} align="center">
@@ -27,15 +64,15 @@ const SubmissionStatus = ({
             Current Status:
           </Text>
           <Tag
-            bg="#FFD3B7"
-            color="#FF7926"
+            bg={status.bg}
+            color={status.color}
             borderRadius="full"
             px={3}
             py={1}
             fontWeight={400}
             fontSize="sm"
           >
-            {statusLabel}
+            {status.label}
           </Tag>
         </HStack>
 

@@ -16,6 +16,7 @@ import {
   Tag,
 } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
+import { useMemo, useState, useEffect } from 'react';
 
 import StatCard from '~/lib/components/dashboard/StatCard';
 import DashboardHeader from '~/lib/components/layout/DashboardHeader';
@@ -25,71 +26,82 @@ import Button from '~/lib/components/ui/Button';
 import Input2 from '~/lib/components/ui/Input2';
 import Pagination from '~/lib/components/ui/Pagination';
 import Select2 from '~/lib/components/ui/Select2';
+import { useGetBudgetsQuery } from '~/lib/redux/services/budgetLine.service';
 import { dashboardStatusColor } from '~/lib/utils/formatter';
+
+const START_YEAR = 2023;
 
 const Report = () => {
   const router = useRouter();
+  const [year, setYear] = useState<string>(''); 
+  const [status, setStatus] = useState<string>(''); 
+  const [searchInput, setSearchInput] = useState<string>(''); 
+  const [search, setSearch] = useState<string>('');
+  const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(10);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPage(1);
+      setSearch(searchInput.trim());
+    }, 500);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [year, status]);
+
+  const queryArgs = useMemo(() => {
+    const q: Record<string, any> = {};
+    if (year) q.year = Number(year);
+    if (status) q.status = Number(status);
+    if (search) q.search = search;
+    q.page = page;
+    q.pageSize = pageSize;
+    return q;
+  }, [year, status, search, page, pageSize]);
+
+  const { data: budgetData, isLoading } = useGetBudgetsQuery(queryArgs);
+  const budgets = budgetData?.data?.result ?? [];
+  const mapStatus = (statusNum: number | undefined) => {
+    switch (statusNum) {
+      case 1:
+        return 'Submitted';
+      case 2:
+        return 'Pending Submission';
+      case 3:
+        return 'Approved';
+      default:
+        return 'Unknown';
+    }
+  };
+
+  const formatDate = (iso?: string) => {
+    if (!iso) return '—';
+    if (iso.startsWith('0001')) return '—';
+    try {
+      return new Date(iso).toLocaleDateString();
+    } catch {
+      return iso;
+    }
+  };
+
+  const totalDepartments = new Set(
+    budgets.map((b: any) => b.department?.id).filter(Boolean)
+  ).size;
+  const submittedCount = budgets.filter((b: any) => b.status === 1).length;
+  const pendingCount = budgets.filter((b: any) => b.status === 2).length;
+  const approvedCount = budgets.filter((b: any) => b.status === 3).length;
+
   const stats = [
-    {
-      description: 'Total Department',
-      value: '10',
-      bg: '#227CBF',
-    },
-    {
-      description: 'Pending Submission',
-      value: '4',
-      bg: '#808080',
-    },
-    {
-      description: 'Submitted',
-      value: '6',
-      bg: '#FF6633',
-    },
-    {
-      description: 'Approved',
-      value: '10',
-      bg: '#47B65C',
-    },
+    { description: 'Total Department', value: String(totalDepartments || 0), bg: '#227CBF' },
+    { description: 'Pending Submission', value: String(pendingCount || 0), bg: '#808080' },
+    { description: 'Submitted', value: String(submittedCount || 0), bg: '#FF6633' },
+    { description: 'Approved', value: String(approvedCount || 0), bg: '#47B65C' },
   ];
 
-  const heads = [
-    'Department',
-    'Status',
-    'Last Submitted',
-    'Versions',
-    'Actions',
-  ];
-
-  const data = [
-    {
-      department: 'Information Technology',
-      status: 'Pending Submission',
-      lastSubmitted: '2025-01-01',
-      versions: 1,
-      id: '1',
-    },
-    {
-      department: 'Information Technology',
-      status: 'Submitted',
-      lastSubmitted: '2025-01-01',
-      versions: 1,
-      id: '2',
-    },
-    {
-      department: 'Information Technology',
-      status: 'Reviewed',
-      lastSubmitted: '2025-01-01',
-      versions: 1,
-      id: '3',
-    },
-    {
-      department: 'Information Technology',
-      status: 'Reviewed',
-      lastSubmitted: '2025-01-01',
-      versions: 1,
-      id: '4',
-    },
-  ];
+  const heads = ['Department', 'Status', 'Last Submitted', 'Versions', 'Actions'];
 
   const handleReview = (id: string) => {
     router.push(`/dashboard/${id}`);
@@ -99,30 +111,54 @@ const Report = () => {
     router.push('/settings');
   };
 
-  const isAllLoading = false;
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - START_YEAR + 1 }, (_, i) => START_YEAR + i).reverse();
+
+  const statusOptions = [
+    { label: 'All', value: '' },
+    { label: 'Submitted', value: '1' },
+    { label: 'Pending Submission', value: '2' },
+    { label: 'Approved', value: '3' },
+  ];
+
+  const handleYearChange = (val: any) => {
+    const v = val?.target?.value ?? val;
+    setYear(String(v ?? ''));
+  };
+  const handleStatusChange = (val: any) => {
+    const v = val?.target?.value ?? val;
+    setStatus(String(v ?? ''));
+  };
+  const handleSearchChange = (val: any) => {
+    const v = val?.target?.value ?? val;
+    setSearchInput(String(v ?? ''));
+  };
+
+  const onPageChange = (newPage: number) => setPage(newPage);
+const onPageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const newSize = parseInt(e.target.value, 10);
+  if (Number.isNaN(newSize)) return;
+  setPageSize(newSize);
+  setPage(1);
+};
 
   return (
     <SimpleDashboardLayout>
       <HeaderBack />
-      <DashboardHeader title="Welcome, Tunde 👋">
+      <DashboardHeader>
         <Button text="Settings" px={10} onClick={handleSettings} />
       </DashboardHeader>
 
       <VStack mt={4} alignItems="stretch" w="full" spacing={6}>
         <SimpleGrid columns={[1, 2, 4]} spacing={4} rounded="15px">
-          {isAllLoading
-            ? Array(3)
+          {isLoading
+            ? Array(4 )
                 .fill(0)
                 .map((_, index) => (
                   <Skeleton key={index} height="120px" borderRadius="15px" />
                 ))
             : stats.map((stat, index) => (
-                <StatCard
-                  key={index}
-                  description={stat.description}
-                  value={stat.value}
-                  bg={stat.bg}
-                />
+                <StatCard key={index} description={stat.description} value={stat.value} bg={stat.bg} />
               ))}
         </SimpleGrid>
 
@@ -134,12 +170,18 @@ const Report = () => {
           spacing={4}
         >
           <SimpleGrid columns={[1, 10]} spacing={4} w={['100%', 'auto']}>
-            <Select2 options={[]} placeholder="Select Year" size="md" />
-            <Select2 options={[]} placeholder="Select Status" size="md" />
+            <Select2
+              options={[{ label: 'All', value: '' }, ...years.map((y) => ({ label: String(y), value: String(y) }))]}
+              placeholder="Select Year"
+              size="md"
+              value={year}
+              onChange={handleYearChange}
+            />
+            <Select2 options={statusOptions} placeholder="Select Status" size="md" value={status} onChange={handleStatusChange} />
           </SimpleGrid>
 
           <Box w={['100%', 'auto']}>
-            <Input2 name="search" type="text" placeholder="Search" size="md" />
+            <Input2 name="search" type="text" placeholder="Search" size="md" value={searchInput} onChange={handleSearchChange} />
           </Box>
         </HStack>
 
@@ -176,47 +218,63 @@ const Report = () => {
               </Tr>
             </Thead>
             <Tbody>
-              {data.map((item) => (
+              {budgets.length === 0 ? (
                 <Tr>
-                  <Td>{item.department}</Td>
-                  <Td>
-                    <Tag
-                      bg={dashboardStatusColor(item.status).bg}
-                      color={dashboardStatusColor(item.status).color}
-                      borderRadius="full"
-                      px={3}
-                      py={1}
-                      fontWeight={400}
-                      fontSize="sm"
-                      minW="130px"
-                      textAlign="center"
-                      justifyContent="center"
-                    >
-                      {item.status}
-                    </Tag>
-                  </Td>
-                  <Td>{item.lastSubmitted}</Td>
-                  <Td>{item.versions}</Td>
-                  <Td>
-                    <Button
-                      text="Review"
-                      size="sm"
-                      fontWeight={400}
-                      fontSize={14}
-                      px={6}
-                      onClick={() => handleReview(item.id)}
-                    />
+                  <Td colSpan={heads.length} textAlign="center">
+                    No budgets found
                   </Td>
                 </Tr>
-              ))}
+              ) : (
+                budgets.map((item: any) => {
+                  const departmentName = item.department?.name ?? '—';
+                  const statusLabel = mapStatus(item.status);
+                  const lastSubmitted = formatDate(item.updatedAt ?? item.createdAt);
+                  const versions = Array.isArray(item.budgetFiles) ? item.budgetFiles.length : 0;
+
+                  return (
+                    <Tr key={item.id}>
+                      <Td>{departmentName}</Td>
+                      <Td>
+                        <Tag
+                          bg={dashboardStatusColor(statusLabel).bg}
+                          color={dashboardStatusColor(statusLabel).color}
+                          borderRadius="full"
+                          px={3}
+                          py={1}
+                          fontWeight={400}
+                          fontSize="sm"
+                          minW="130px"
+                          textAlign="center"
+                          justifyContent="center"
+                        >
+                          {statusLabel}
+                        </Tag>
+                      </Td>
+                      <Td>{lastSubmitted}</Td>
+                      <Td>{versions}</Td>
+                      <Td>
+                        <Button
+                          text="Review"
+                          size="sm"
+                          fontWeight={400}
+                          fontSize={14}
+                          px={6}
+                          onClick={() => handleReview(item.id)}
+                        />
+                      </Td>
+                    </Tr>
+                  );
+                })
+              )}
             </Tbody>
           </Table>
+
           <Pagination
-            currentPage={1}
-            pageSize={10}
-            totalItems={100}
-            onPageChange={() => {}}
-            onPageSizeChange={() => {}}
+            currentPage={budgetData?.data?.currentPage ?? page}
+            pageSize={budgetData?.data?.pageSize ?? pageSize}
+            totalItems={budgetData?.data?.totalRecords ?? 0}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
             bg="transparent"
             borderRadius="0px"
             boxShadow="none"

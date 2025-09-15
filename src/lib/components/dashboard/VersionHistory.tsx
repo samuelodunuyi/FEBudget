@@ -16,30 +16,38 @@ import {
 
 import Button from '~/lib/components/ui/Button';
 
-export type VersionRow = {
-  version: string;
-  filename: string;
-  uploaded: string;
+export type BudgetFile = {
+  id: string;
+  documentUrl: string;
+  version: number;
+  createdAt?: string;
+};
+
+export type Budget = {
+  id: string;
+  budgetFiles?: BudgetFile[];
+  createdAt: string;
 };
 
 type VersionHistoryProps = {
-  rows?: VersionRow[];
+  budgets?: Budget[];
+  isLoading?: boolean;
 };
 
-const defaultRows: VersionRow[] = [
-  {
-    version: 'v1',
-    filename: 'IT_Budget_Template_2026.docx',
-    uploaded: '28 August, 2025',
-  },
-  {
-    version: 'v2',
-    filename: 'IT_Budget_2026.docx',
-    uploaded: '28 August, 2025',
-  },
-];
+const VersionHistory = ({ budgets = [], isLoading = false }: VersionHistoryProps) => {
+  if (isLoading) return <Text>Loading...</Text>;
+  if (!budgets.length) return <Text>No version history available.</Text>;
 
-const VersionHistory = ({ rows = defaultRows }: VersionHistoryProps) => {
+  // Get the latest budget by createdAt
+  const latestBudget = budgets.reduce((prev, curr) =>
+    new Date(curr.createdAt) > new Date(prev.createdAt) ? curr : prev
+  );
+
+  // Sort budget files by version descending
+  const sortedFiles = [...(latestBudget.budgetFiles || [])].sort(
+    (a, b) => b.version - a.version
+  );
+
   return (
     <Box bg="white" rounded="16px" p={4} border="1px solid #EDEDED">
       <HStack w="full" justify="space-between" align="center" mb={4}>
@@ -56,9 +64,7 @@ const VersionHistory = ({ rows = defaultRows }: VersionHistoryProps) => {
             fontWeight={400}
             fontSize={12}
             borderRadius={10}
-            icon={
-              <Image src="/images/upload-2.svg" alt="download" boxSize={5} />
-            }
+            icon={<Image src="/images/upload-2.svg" alt="upload" boxSize={5} />}
             iconPosition="right"
           />
         </HStack>
@@ -97,11 +103,19 @@ const VersionHistory = ({ rows = defaultRows }: VersionHistoryProps) => {
             </Tr>
           </Thead>
           <Tbody>
-            {rows.map((r) => (
-              <Tr key={r.version}>
-                <Td>{r.version}</Td>
-                <Td>{r.filename}</Td>
-                <Td>{r.uploaded}</Td>
+            {sortedFiles.map((file) => (
+              <Tr key={file.id}>
+                <Td>{`v${file.version}`}</Td>
+                <Td>{file.documentUrl.split('/').pop()}</Td>
+                <Td>
+                  {file.createdAt
+                    ? new Date(file.createdAt).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })
+                    : '-'}
+                </Td>
                 <Td>
                   <Button
                     text="Download"
@@ -112,14 +126,9 @@ const VersionHistory = ({ rows = defaultRows }: VersionHistoryProps) => {
                     fontWeight={400}
                     fontSize={12}
                     borderRadius={10}
-                    icon={
-                      <Image
-                        src="/images/download.svg"
-                        alt="download"
-                        boxSize={5}
-                      />
-                    }
+                    icon={<Image src="/images/download.svg" alt="download" boxSize={5} />}
                     iconPosition="right"
+                    onClick={() => window.open(file.documentUrl, '_blank')}
                   />
                 </Td>
               </Tr>

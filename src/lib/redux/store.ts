@@ -16,10 +16,7 @@ import {
 import storage from 'redux-persist/lib/storage';
 
 import { approvalApi } from './services/approval.service';
-import { budgetLineApi } from './services/budgetLine.service';
-import { fundApi } from './services/fund.service';
-import { grantProviderApi } from './services/grantProvider.service';
-import { requestApi } from './services/request.service';
+import { BudgetApi } from './services/budgetLine.service';
 import { userApi } from './services/user.service';
 import { useTypeApi } from './services/useType.service';
 import authReducer from './slices/authSlice';
@@ -32,41 +29,27 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  [requestApi.reducerPath]: requestApi.reducer,
   [userApi.reducerPath]: userApi.reducer,
-  [budgetLineApi.reducerPath]: budgetLineApi.reducer,
+  [BudgetApi.reducerPath]: BudgetApi.reducer,
   [approvalApi.reducerPath]: approvalApi.reducer,
-  [fundApi.reducerPath]: fundApi.reducer,
-  [grantProviderApi.reducerPath]: grantProviderApi.reducer,
   [useTypeApi.reducerPath]: useTypeApi.reducer,
 });
+
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-export const store: any = configureStore({
-  reducer: {
-    app: persistedReducer,
-    [requestApi.reducerPath]: requestApi.reducer,
-    [userApi.reducerPath]: userApi.reducer,
-    [budgetLineApi.reducerPath]: budgetLineApi.reducer,
-    [approvalApi.reducerPath]: approvalApi.reducer,
-    [fundApi.reducerPath]: fundApi.reducer,
-    [grantProviderApi.reducerPath]: grantProviderApi.reducer,
-    [useTypeApi.reducerPath]: useTypeApi.reducer,
-  },
+export const store = configureStore({
+  reducer: persistedReducer, // ✅ use only the persisted root
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat([
-      requestApi.middleware,
+    }).concat(
       userApi.middleware,
-      budgetLineApi.middleware,
+      BudgetApi.middleware,
       approvalApi.middleware,
-      fundApi.middleware,
-      grantProviderApi.middleware,
-      useTypeApi.middleware,
-    ]),
+      useTypeApi.middleware
+    ),
 });
 
 setupListeners(store.dispatch);

@@ -1,12 +1,15 @@
 import { Text, Stack, HStack } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
 
+import { useAppSelector } from '~/lib/redux/store';
+
 type DashboardHeaderProps = {
-  title: string;
   children?: ReactNode;
 };
 
-const DashboardHeader = ({ title, children }: DashboardHeaderProps) => {
+const DashboardHeader = ({ children }: DashboardHeaderProps) => {
+    const { userInfo } = useAppSelector((state) => state.auth);
+  
   return (
     <HStack
       justify="space-between"
@@ -21,7 +24,8 @@ const DashboardHeader = ({ title, children }: DashboardHeaderProps) => {
           fontWeight="500"
           textTransform="capitalize"
         >
-          {title}
+          Hello {userInfo?.name || 'User'}
+
         </Text>
       </Stack>
 

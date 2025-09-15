@@ -16,7 +16,7 @@ export const useDocumentDownloader = () => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const toast = useToast();
-  const { token } = useAppSelector((state) => state.app.auth);
+  const { token } = useAppSelector((state) => state.auth);
   const downloadDocument = async (doc: Document, openAfterDownload = false) => {
     // Reset error state
     setError(null);

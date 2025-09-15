@@ -61,12 +61,11 @@ export const addGrantProviderSchema = Yup.object().shape({
 });
 
 export const addUserSchema = Yup.object().shape({
-  firstName: Yup.string().required('First Name is Required'),
-  lastName: Yup.string().required('Last Name is Required'),
+  name: Yup.string().required('Full Name is Required'),
   email: Yup.string().email('Invalid email').required('Email is Required'),
   phoneNumber: Yup.string().required('Phone Number is Required'),
   role: Yup.number().required('Role is Required'),
-  designation: Yup.string().required('Designation is Required'),
+  department: Yup.string().required('Department is Required'),
 });
 
 export const addUseTypeSchema = Yup.object().shape({
