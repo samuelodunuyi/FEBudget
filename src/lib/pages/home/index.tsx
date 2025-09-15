@@ -26,11 +26,11 @@ const Home = () => {
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
   // Fetch all budgets
-  const { data, isLoading: isLoadingBudgets, isError } = useGetBudgetsQuery(undefined);
+  const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(undefined);
 
   // Filter budgets by current user's department
   const departmentBudgets = data?.data?.result.filter(
-    (b) => b.department?.id === userInfo?.department?.id
+    (b: { department: { id: any; }; }) => b.department?.id === userInfo?.department?.id
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
