@@ -6,7 +6,7 @@ export const msalConfig = {
     authority:
       'https://login.microsoftonline.com/3d1d815e-5346-4244-9f7b-62b78fb742b1',
     // redirectUri: 'http://localhost:3000/login',
-    redirectUri: 'https://fe-budget-dlenlaxjt-parabola1999s-projects.vercel.app/login',
+    redirectUri: 'https://fe-budget.vercel.app/login',
   },
   cache: {
     cacheLocation: 'sessionStorage',
