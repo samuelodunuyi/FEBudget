@@ -103,14 +103,10 @@ const Home = () => {
             value={selectedYear ?? undefined}
             onChange={(val: any) => setSelectedYear(val)}
           />
-          {[2, 3, 4].includes(userInfo.role) && (
-            <Button
-              text="Dashboard"
-              size="md"
-              px={14}
-              onClick={handleDashboard}
-            />
-          )}
+{userInfo?.role && [2, 3, 4].includes(userInfo.role) && (
+  <Button text="Dashboard" size="md" px={14} onClick={handleDashboard} />
+)}
+
         </SimpleGrid>
 
         <Text fontSize={['md', 'lg']} fontWeight="600" color="headText.100">
