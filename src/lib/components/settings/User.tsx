@@ -33,14 +33,14 @@ const User = ({ onClose, data }: UserProps) => {
       value: d.id,
     })) || [];
 
-  const initialValues = {
-    name: data?.name || '',
-    email: data?.email || '',
-    phoneNumber: data?.phoneNumber || '',
-    role: data?.role || '',
-    department: data?.department || '',
-    address: '',
-  };
+const initialValues = {
+  name: data?.name || '',
+  email: data?.email || '',
+  phoneNumber: data?.phoneNumber || '',
+  role: data?.role || '',
+  departmentId: data?.department?.id || '',
+  address: '',
+};
 
   const submitHandler = async (values: any) => {
     try {
@@ -48,11 +48,11 @@ const User = ({ onClose, data }: UserProps) => {
 
       const payload = {
         ...values,
-        address: '', 
+        address: '',
       };
 
       if (data) {
-        await updateUser({ id: data.id, ...payload }).unwrap();
+updateUser({ id: data.id, body: payload }).unwrap();
         toast({
           title: 'User updated successfully',
           status: 'success',
@@ -93,7 +93,7 @@ const User = ({ onClose, data }: UserProps) => {
 
   return (
     <Formik initialValues={initialValues} onSubmit={submitHandler}>
-      {({ values, setFieldValue, isSubmitting }) => (
+      {({ isSubmitting }) => (
         <Form style={{ width: '100%' }}>
           <VStack bg="white" borderRadius="12px" w="full" align="stretch">
             <Input
@@ -132,21 +132,24 @@ const User = ({ onClose, data }: UserProps) => {
                 />
               )}
             </Field>
+              
+<Field name="departmentId">
+  {({ field, form }: any) => (
+    <Select
+      label="Department"
+      placeholder="Select Department"
+      value={field.value || ''}
+      onChange={(val: any) => form.setFieldValue('departmentId', val)}
+      options={departmentOptions.map((dept: { label: any; value: any; }) => ({
+        label: dept.label,
+        value: dept.value, // string now
+        key: dept.value,
+      }))}
+      fontSize={14}
+    />
+  )}
+</Field>
 
-            <Select
-              label="Department"
-              placeholder="Select Department"
-              value={values.department || ''}
-              onChange={(val: any) => setFieldValue('department', val)}
-              options={departmentOptions.map(
-                (dept: { label: any; value: any }) => ({
-                  label: dept.label,
-                  value: dept.value,
-                  key: dept.value,
-                })
-              )}
-              fontSize={14}
-            />
           </VStack>
 
           <HStack w="full" justify="flex-end" spacing={4} mt={6}>

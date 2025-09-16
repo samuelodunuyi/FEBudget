@@ -48,6 +48,12 @@ const Users = ({ onOpenDrawer }: UsersProps) => {
     refetch,
   } = useGetUsersQuery({ page: currentPage, pageSize });
 
+const roleOptions = [
+  { id: 1, value: 'Others' },
+  { id: 2, value: 'Finance' },
+  { id: 3, value: 'IT Admin' },
+  { id: 4, value: 'Ceo' },
+];
 
   const users = usersData?.data?.result ?? [];
 
@@ -159,7 +165,9 @@ const Users = ({ onOpenDrawer }: UsersProps) => {
                   <Td sx={tableCellStyle}>
                     {item?.department?.name || 'N/A'}
                   </Td>
-                  <Td sx={tableCellStyle}>{item?.role || 'N/A'}</Td>
+<Td sx={tableCellStyle}>
+  {roleOptions.find(r => r.id === item?.role)?.value || 'N/A'}
+</Td>
                   <Td sx={tableCellStyle}>
                     <Switch isChecked />
                   </Td>

@@ -65,7 +65,7 @@ export const addUserSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('Email is Required'),
   phoneNumber: Yup.string().required('Phone Number is Required'),
   role: Yup.number().required('Role is Required'),
-  department: Yup.string().required('Department is Required'),
+  departmentId: Yup.string().required('Department is Required'),
 });
 
 export const addUseTypeSchema = Yup.object().shape({

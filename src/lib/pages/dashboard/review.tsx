@@ -321,7 +321,7 @@ const Report = () => {
                     <Td>{file.fileName}</Td>
                     <Td>
                       {file.createdAt
-                        ? new Date(file.createdAt).toLocaleDateString('en-GB', {
+                        ? new Date(file.updatedAt).toLocaleDateString('en-GB', {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric',

@@ -5,8 +5,8 @@ export const msalConfig = {
     clientId: '9dae18a6-567d-4555-9dce-2c50a3ad3ecf',
     authority:
       'https://login.microsoftonline.com/3d1d815e-5346-4244-9f7b-62b78fb742b1',
-    // redirectUri: 'http://localhost:3000/login',
-    redirectUri: 'https://fe-budget.vercel.app/login',
+    redirectUri: 'http://localhost:3000/login',
+    // redirectUri: 'https://fe-budget.vercel.app/login',
   },
   cache: {
     cacheLocation: 'sessionStorage',
