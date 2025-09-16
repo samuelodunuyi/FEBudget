@@ -12,7 +12,10 @@ import DashboardHeader from '~/lib/components/layout/DashboardHeader';
 import SimpleDashboardLayout from '~/lib/components/layout/SimpleDashboardLayout';
 import Button from '~/lib/components/ui/Button';
 import Select2 from '~/lib/components/ui/Select2';
-import { useCreateBudgetMutation, useGetBudgetsQuery } from '~/lib/redux/services/budgetLine.service';
+import {
+  useCreateBudgetMutation,
+  useGetBudgetsQuery,
+} from '~/lib/redux/services/budgetLine.service';
 import { useAppSelector } from '~/lib/redux/store';
 import { yearOptions } from '~/lib/utils/formatter';
 
@@ -20,24 +23,27 @@ const Home = () => {
   const router = useRouter();
   const toast = useToast();
   const { userInfo } = useAppSelector((state) => state.auth);
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<number>(
+    new Date().getFullYear()
+  );
   const [createBudget, { isLoading }] = useCreateBudgetMutation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
-const queryArgs = useMemo(() => {
-  const q: Record<string, any> = {};
-  if (selectedYear) q.Year = Number(selectedYear);
-  return q;
-}, [selectedYear]);
-  console.log(selectedYear)
-const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
+  const queryArgs = useMemo(() => {
+    const q: Record<string, any> = {};
+    if (selectedYear) q.Year = Number(selectedYear);
+    return q;
+  }, [selectedYear]);
+  console.log(selectedYear);
+  const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
 
   const departmentBudgets = data?.data?.result.filter(
-    (b: { department: { id: any; }; }) => b.department?.id === userInfo?.department?.id
+    (b: { department: { id: any } }) =>
+      b.department?.id === userInfo?.department?.id
   );
 
-  console.log(departmentBudgets)
+  console.log(departmentBudgets);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -73,7 +79,8 @@ const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error?.data?.message || error?.message || 'Failed to submit budget',
+        description:
+          error?.data?.message || error?.message || 'Failed to submit budget',
         status: 'error',
         duration: 3000,
         isClosable: true,
@@ -91,15 +98,22 @@ const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
 
       <VStack alignItems="stretch" spacing={6} w="full" mt={4}>
         <SimpleGrid columns={[1, 10]} spacing={4} w="full">
-<Select2
-  name="year"
-  options={yearOptions()}
-  placeholder="Select Year"
-  size="md"
-  value={selectedYear ?? undefined}
-  onChange={(val: any) => setSelectedYear(val)} // depends on your Select2 signature
-/>
-          <Button text="Dashboard" size="md" px={14} onClick={handleDashboard} />
+          <Select2
+            name="year"
+            options={yearOptions()}
+            placeholder="Select Year"
+            size="md"
+            value={selectedYear ?? undefined}
+            onChange={(val: any) => setSelectedYear(val)}
+          />
+          {[2, 3, 4].includes(userInfo.role) && (
+            <Button
+              text="Dashboard"
+              size="md"
+              px={14}
+              onClick={handleDashboard}
+            />
+          )}
         </SimpleGrid>
 
         <Text fontSize={['md', 'lg']} fontWeight="600" color="headText.100">
@@ -115,11 +129,17 @@ const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
 
         {/* Status and Version History */}
         <SimpleGrid columns={[1, 2]} spacing={4} w="full">
-          <SubmissionStatus budgets={departmentBudgets} isLoading={isLoadingBudgets} />
-          <VersionHistory budgets={departmentBudgets} isLoading={isLoadingBudgets} />
+          <SubmissionStatus
+            budgets={departmentBudgets}
+            isLoading={isLoadingBudgets}
+          />
+          <VersionHistory
+            budgets={departmentBudgets}
+            isLoading={isLoadingBudgets}
+          />
         </SimpleGrid>
 
-<Comments budgetId={departmentBudgets?.[0]?.id} />
+        <Comments budgetId={departmentBudgets?.[0]?.id} />
       </VStack>
     </SimpleDashboardLayout>
   );
