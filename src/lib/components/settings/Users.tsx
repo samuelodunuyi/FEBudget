@@ -153,7 +153,9 @@ const Users = ({ onOpenDrawer }: UsersProps) => {
                     {(currentPage - 1) * pageSize + index + 1}
                   </Td>
                   <Td sx={tableCellStyle}>{item?.name || 'N/A'}</Td>
-                  <Td sx={tableCellStyle}>{item?.email || 'N/A'}</Td>
+<Td sx={{ ...tableCellStyle, textTransform: 'none' }}>
+  {item?.email || 'N/A'}
+</Td>
                   <Td sx={tableCellStyle}>
                     {item?.department?.name || 'N/A'}
                   </Td>

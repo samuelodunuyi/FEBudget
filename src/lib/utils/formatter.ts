@@ -522,13 +522,12 @@ export const calculateSLA = (
 };
 
 export const roles = [
-  // { label: 'Provider', value: 0 },
-  { label: 'Transactor', value: 1 }, // only make request Requestor
-  { label: 'Procurement Admin', value: 2 },
+  { label: 'Others', value: 1 },
+  { label: 'Finance', value: 2 },
   { label: 'IT Admin', value: 3 },
   { label: 'CEO', value: 4 },
-  { label: 'Finance', value: 5 },
 ];
+
 export const getRole = (value: number) => {
   return roles.find((item) => item.value === value)?.label;
 };
@@ -541,11 +540,11 @@ export const yearOptions = (startYear: number = 5, endYear: number = 10) => {
   return years;
 };
 
-// Pending Submission
 export const dashboardStatusOptions = [
-  { label: 'Pending Submission', value: 1 },
-  { label: 'Submitted', value: 2 },
-  { label: 'Reviewed', value: 3 },
+  { label: 'Submitted', value: 1 },
+  { label: 'Pending Submission', value: 2 },
+  { label: 'Approved', value: 3 },
+  { label: 'Rejected', value: 4 },
 ];
 
 // color and bg for dashboard status
@@ -559,6 +558,8 @@ export const dashboardStatusColor = (status: string) => {
       return { color: '#47B65C', bg: '#B8FFAE' };
        case 'Approved':
       return { color: '#47B65C', bg: '#B8FFAE' };
+       case 'Rejected':
+      return { color: '#f70000ff', bg: '#ffffffff' };
     default:
       return { color: '#9CA3AF', bg: '#E5E7EB' };
   }

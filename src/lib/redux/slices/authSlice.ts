@@ -44,13 +44,20 @@ const authSlice = createSlice({
       return initialState;
     },
 
+    clearCredentials: (state) => {
+  state.userInfo = null;
+  state.token = null;
+  state.role = null;
+  Cookies.remove('token');
+},
+
     setRole: (state, { payload }: PayloadAction<number>) => {
       state.role = payload;
     },
   },
 });
 
-export const { setCredentials, logOut, setUser, updateUser, setRole } =
+export const { setCredentials, logOut, setUser, updateUser, setRole, clearCredentials} =
   authSlice.actions;
 
 export default authSlice.reducer;

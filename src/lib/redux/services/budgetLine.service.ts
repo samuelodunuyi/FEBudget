@@ -54,6 +54,15 @@ export const BudgetApi = createApi({
       providesTags: ['Budget'],
     }),
 
+        getBudgetsStat: builder.query({
+      query: (params) => ({
+        url: `api/v1/Budget/Stat`,
+        method: 'GET',
+        params,
+      }),
+      providesTags: ['Budget'],
+    }),
+
     updateBudget: builder.mutation({
       query: ({ id, body }) => ({
         url: `api/v1/Budget/${id}`,
@@ -121,6 +130,15 @@ export const BudgetApi = createApi({
       }),
       invalidatesTags: ['BudgetChat'],
     }),
+
+downloadBudgetFile: builder.mutation<Blob, string>({
+  query: (budgetFileId) => ({
+    url: `/api/v1/Budget/download/${budgetFileId}`,
+    method: 'GET',
+    responseHandler: async (res) => res.blob(),
+  }),
+}),
+
   }),
 });
 
@@ -134,5 +152,7 @@ export const {
   useCreateBudgetChatMutation,
   useGetBudgetChatsQuery,
   useUpdateBudgetChatMutation,
+  useGetBudgetsStatQuery,
   useDeleteBudgetChatMutation,
+  useDownloadBudgetFileMutation
 } = BudgetApi;

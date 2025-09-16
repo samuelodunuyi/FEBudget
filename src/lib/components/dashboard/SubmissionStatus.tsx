@@ -21,9 +21,10 @@ type SubmissionStatusProps = {
 };
 
 const statusMap: Record<number, { label: string; bg: string; color: string }> = {
-  1: { label: 'Submitted', bg: '#FFD3B7', color: '#FF7926' },
-  2: { label: 'Pending Submission', bg: '#FFE9B7', color: '#FFAA26' },
-  3: { label: 'Approved', bg: '#D3FFD3', color: '#27A426' },
+  1: { label: 'Submitted', bg: '#FF7926', color: '#FFD3B7' },
+  2: { label: 'Pending Submission', bg: '#808080', color: '#EDEDED' },
+  3: { label: 'Approved', bg: '#47B65C', color: '#B8FFAE' },
+  4: { label: 'Rejected', bg: '#f70000ff', color: '#ffffffff' },
 };
 
 const SubmissionStatus = ({ budgets = [], isLoading = false }: SubmissionStatusProps) => {

@@ -26,7 +26,7 @@ import Button from '~/lib/components/ui/Button';
 import Input2 from '~/lib/components/ui/Input2';
 import Pagination from '~/lib/components/ui/Pagination';
 import Select2 from '~/lib/components/ui/Select2';
-import { useGetBudgetsQuery } from '~/lib/redux/services/budgetLine.service';
+import { useGetBudgetsQuery, useGetBudgetsStatQuery } from '~/lib/redux/services/budgetLine.service';
 import { dashboardStatusColor } from '~/lib/utils/formatter';
 
 const START_YEAR = 2023;
@@ -34,7 +34,7 @@ const START_YEAR = 2023;
 const Report = () => {
   const router = useRouter();
   const [year, setYear] = useState<number>(new Date().getFullYear());
-  const [status, seStatustStatus] = useState<string>(''); 
+  const [status, setStatus] = useState<string>(''); 
   const [searchInput, setSearchInput] = useState<string>(''); 
   const [search, setSearch] = useState<string>('');
   const [page, setPage] = useState<number>(1);
@@ -63,6 +63,8 @@ const Report = () => {
   }, [year, status, search, page, pageSize]);
 
   const { data: budgetData, isLoading } = useGetBudgetsQuery(queryArgs);
+  const { data: budgetStatData} = useGetBudgetsStatQuery(queryArgs);
+  console.log(budgetStatData)
   const budgets = budgetData?.data?.result ?? [];
   const mapStatus = (statusNum: number | undefined) => {
     switch (statusNum) {
@@ -72,6 +74,8 @@ const Report = () => {
         return 'Pending Submission';
       case 3:
         return 'Approved';
+      case 4:
+        return 'Rejected';
       default:
         return 'Unknown';
     }
@@ -122,9 +126,11 @@ const Report = () => {
   ];
 
   const handleYearChange = (val: any) => {
-    const v = val?.target?.value ?? val;
-    setYear(String(v ?? ''));
-  };
+  const v = val?.target?.value ?? val;
+  if (v !== undefined && v !== null) {
+    setYear(Number(v)); // convert string to number
+  }
+}
   const handleStatusChange = (val: any) => {
     const v = val?.target?.value ?? val;
     setStatus(String(v ?? ''));
@@ -225,14 +231,14 @@ const onPageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                   </Td>
                 </Tr>
               ) : (
-                budgets.map((item: any) => {
+                budgets.map((item: any, index: number) => {
                   const departmentName = item.department?.name ?? '—';
                   const statusLabel = mapStatus(item.status);
                   const lastSubmitted = formatDate(item.updatedAt ?? item.createdAt);
                   const versions = Array.isArray(item.budgetFiles) ? item.budgetFiles.length : 0;
 
                   return (
-                    <Tr key={item.id}>
+                    <Tr key={index}>
                       <Td>{departmentName}</Td>
                       <Td>
                         <Tag

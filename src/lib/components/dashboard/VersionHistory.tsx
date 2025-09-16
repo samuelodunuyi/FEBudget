@@ -13,8 +13,10 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react';
+import { useState } from 'react';
 
 import Button from '~/lib/components/ui/Button';
+import { useDownloadBudgetFileMutation } from '~/lib/redux/services/budgetLine.service';
 
 export type BudgetFile = {
   id: string;
@@ -36,6 +38,9 @@ type VersionHistoryProps = {
 };
 
 const VersionHistory = ({ budgets = [], isLoading = false }: VersionHistoryProps) => {
+  const [downloadBudgetFile] = useDownloadBudgetFileMutation();
+  const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
+
   if (isLoading) return <Text>Loading...</Text>;
   if (!budgets.length) return <Text>No version history available.</Text>;
 
@@ -49,26 +54,32 @@ const VersionHistory = ({ budgets = [], isLoading = false }: VersionHistoryProps
     (a, b) => b.version - a.version
   );
 
+  const handleDownload = async (file: BudgetFile) => {
+    try {
+      setDownloadingFileId(file.id);
+      const blob = await downloadBudgetFile(file.id).unwrap();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download failed:', err);
+    } finally {
+      setDownloadingFileId(null);
+    }
+  };
+
   return (
     <Box bg="white" rounded="16px" p={4} border="1px solid #EDEDED">
       <HStack w="full" justify="space-between" align="center" mb={4}>
         <Text fontSize={['md', 'lg']} fontWeight="600" color="headText.100">
           Version History
         </Text>
-        <HStack>
-          <Button
-            text="Upload Budget Template"
-            size="md"
-            variant="outline"
-            border="#808080"
-            color="#333333"
-            fontWeight={400}
-            fontSize={12}
-            borderRadius={10}
-            icon={<Image src="/images/upload-2.svg" alt="upload" boxSize={5} />}
-            iconPosition="right"
-          />
-        </HStack>
+
       </HStack>
 
       <TableContainer>
@@ -119,7 +130,7 @@ const VersionHistory = ({ budgets = [], isLoading = false }: VersionHistoryProps
                 </Td>
                 <Td>
                   <Button
-                    text="Download"
+                    text={downloadingFileId === file.id ? 'Downloading...' : 'Download'}
                     size="sm"
                     variant="outline"
                     border="#808080"
@@ -129,7 +140,8 @@ const VersionHistory = ({ budgets = [], isLoading = false }: VersionHistoryProps
                     borderRadius={10}
                     icon={<Image src="/images/download.svg" alt="download" boxSize={5} />}
                     iconPosition="right"
-                    onClick={() => window.open(file.documentUrl, '_blank')}
+                    isDisabled={downloadingFileId === file.id}
+                    onClick={() => handleDownload(file)}
                   />
                 </Td>
               </Tr>

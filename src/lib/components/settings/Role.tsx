@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Box,
   Table,
@@ -22,30 +24,21 @@ const Role = () => {
 
   const tableHead = ['S/N', 'Role', 'Description'];
 
-  const userActivitiesData = [
-    {
-      id: 1,
-      role: 'Admin',
-      description: 'Admin',
-    },
-    {
-      id: 2,
-      role: 'User',
-      description: 'User',
-    },
-    {
-      id: 3,
-      role: 'Guest',
-      description: 'Guest',
-    },
+  const rolenumList = [
+    { id: 1, value: 'Others', description: 'Other Role' },
+    { id: 2, value: 'Finance', description: 'Finance Role' },
+    { id: 3, value: 'ITAdmin', description: 'IT-Admin Roles' },
+    { id: 4, value: 'Ceo', description: 'Ceo Roles' },
   ];
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedRoles = rolenumList.slice(startIndex, startIndex + pageSize);
 
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newPageSize = Number(e.target.value);
-    const totalItems = userActivitiesData?.length || 0;
+    const totalItems = rolenumList.length;
     const newTotalPages = Math.ceil(totalItems / newPageSize);
 
-    // If current page exceeds new total pages, reset to last valid page
     if (currentPage > newTotalPages && newTotalPages > 0) {
       setCurrentPage(newTotalPages);
     }
@@ -78,33 +71,32 @@ const Role = () => {
                 </Tr>
               ))}
 
-            {!isLoading && userActivitiesData?.length === 0 && (
+            {!isLoading && rolenumList.length === 0 && (
               <Tr>
                 <Td colSpan={tableHead.length} p={0}>
                   <EmptyState
-                    message="No Activity Logs Found"
-                    subMessage="There are no user activities recorded yet. Activities will appear here as users interact with the system."
+                    message="No Roles Found"
+                    subMessage="There are no roles recorded yet."
                   />
                 </Td>
               </Tr>
             )}
 
             {!isLoading &&
-              userActivitiesData?.length > 0 &&
-              userActivitiesData.map((item: any, index: number) => (
+              paginatedRoles.map((item, index) => (
                 <Tr key={item.id} cursor="pointer" _hover={{ bg: 'gray.50' }}>
-                  <Td sx={tableCellStyle}>{index + 1}</Td>
-                  <Td sx={tableCellStyle}>{item.role}</Td>
+                  <Td sx={tableCellStyle}>{startIndex + index + 1}</Td>
+                  <Td sx={tableCellStyle}>{item.value}</Td>
                   <Td sx={tableCellStyle}>{item.description}</Td>
                 </Tr>
               ))}
           </Tbody>
         </Table>
-        {!isLoading && userActivitiesData?.length > 0 && (
+        {!isLoading && rolenumList.length > 0 && (
           <Pagination
             currentPage={currentPage}
             pageSize={pageSize}
-            totalItems={userActivitiesData?.length || 0}
+            totalItems={rolenumList.length}
             onPageChange={setCurrentPage}
             onPageSizeChange={handlePageSizeChange}
           />

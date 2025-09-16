@@ -20,14 +20,14 @@ const Home = () => {
   const router = useRouter();
   const toast = useToast();
   const { userInfo } = useAppSelector((state) => state.auth);
-const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [createBudget, { isLoading }] = useCreateBudgetMutation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
 const queryArgs = useMemo(() => {
   const q: Record<string, any> = {};
-  if (selectedYear) q.Year = Number(selectedYear); // match the API field name
+  if (selectedYear) q.Year = Number(selectedYear);
   return q;
 }, [selectedYear]);
   console.log(selectedYear)
