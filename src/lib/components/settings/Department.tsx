@@ -22,8 +22,6 @@ const Department = ({ onClose, data }: DepartmentProps) => {
 
   const submitHandler = async (values: any) => {
     try {
-      // Validate form values using Yup
-      console.log(values)
       if (data) {
       await updateDepartment({ id: data.id, ...values }).unwrap();
         toast({

@@ -35,15 +35,12 @@ const Home = () => {
     if (selectedYear) q.Year = Number(selectedYear);
     return q;
   }, [selectedYear]);
-  console.log(selectedYear);
   const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
 
   const departmentBudgets = data?.data?.result.filter(
     (b: { department: { id: any } }) =>
       b.department?.id === userInfo?.department?.id
   );
-
-  console.log(departmentBudgets);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
