@@ -20,6 +20,7 @@ export type BudgetFile = {
   id: string;
   documentUrl: string;
   version: number;
+  fileName: string;
   createdAt?: string;
 };
 
@@ -106,7 +107,7 @@ const VersionHistory = ({ budgets = [], isLoading = false }: VersionHistoryProps
             {sortedFiles.map((file) => (
               <Tr key={file.id}>
                 <Td>{`v${file.version}`}</Td>
-                <Td>{file.documentUrl.split('/').pop()}</Td>
+                <Td>{file.fileName}</Td>
                 <Td>
                   {file.createdAt
                     ? new Date(file.createdAt).toLocaleDateString('en-GB', {

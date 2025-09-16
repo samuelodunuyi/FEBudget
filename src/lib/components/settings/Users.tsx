@@ -159,7 +159,7 @@ const Users = ({ onOpenDrawer }: UsersProps) => {
                   </Td>
                   <Td sx={tableCellStyle}>{item?.role || 'N/A'}</Td>
                   <Td sx={tableCellStyle}>
-                    <Switch isChecked={item?.status === 'Active'} />
+                    <Switch isChecked />
                   </Td>
                   <Td sx={tableCellStyle}>
                     <HStack>

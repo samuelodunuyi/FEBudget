@@ -33,7 +33,10 @@ import DashboardHeader from '~/lib/components/layout/DashboardHeader';
 import HeaderBack from '~/lib/components/layout/HeaderBack';
 import SimpleDashboardLayout from '~/lib/components/layout/SimpleDashboardLayout';
 import Pagination from '~/lib/components/ui/Pagination';
-import { useGetBudgetsQuery, useApproveBudgetMutation } from '~/lib/redux/services/budgetLine.service';
+import {
+  useGetBudgetsQuery,
+  useApproveBudgetMutation,
+} from '~/lib/redux/services/budgetLine.service';
 
 const statusMap = {
   1: { label: 'Submitted', bg: '#FFD3B7', color: '#FF7926' },
@@ -42,7 +45,10 @@ const statusMap = {
 } as const;
 
 const Report = () => {
-  const { id } = useParams();
+  const params = useParams();
+  const idParam = params?.id;
+  const id = Array.isArray(idParam) ? idParam[0] : (idParam ?? '');
+
   const { data, isLoading, isError } = useGetBudgetsQuery(undefined);
 
   const [approveBudget] = useApproveBudgetMutation();
@@ -52,7 +58,9 @@ const Report = () => {
   if (isLoading) return <Text>Loading...</Text>;
   if (isError || !data) return <Text>Error loading budget data</Text>;
 
-  const budget = data.data.result.find((b: { id: string | string[] | undefined; }) => b.id === id);
+  const budget = data.data.result.find(
+    (b: { id: string | string[] | undefined }) => b.id === id
+  );
   if (!budget) return <Text>Budget not found</Text>;
 
   const currentStatus = statusMap[budget.status as keyof typeof statusMap] || {
@@ -61,18 +69,23 @@ const Report = () => {
     color: '#808080',
   };
 
-  const sortedFiles = [...(budget.budgetFiles || [])].sort((a, b) => b.version - a.version);
+  const sortedFiles = [...(budget.budgetFiles || [])].sort(
+    (a, b) => b.version - a.version
+  );
 
   const handleSwitchChange = () => {
-      setSwitchChecked((prev) => !prev);
+    setSwitchChecked((prev) => !prev);
 
-    onOpen(); 
+    onOpen();
   };
 
   const confirmApproval = async () => {
     try {
-      console.log(budget.id, !switchChecked)
-      await approveBudget({ id: budget.id, isApproval: !switchChecked }).unwrap();
+      console.log(budget.id, !switchChecked);
+      await approveBudget({
+        id: budget.id,
+        isApproval: !switchChecked,
+      }).unwrap();
       setSwitchChecked(!switchChecked);
     } catch (error) {
       console.error('Error updating budget approval:', error);
@@ -92,7 +105,11 @@ const Report = () => {
           <HStack w="full" justify="space-between">
             <VStack align="stretch" spacing={0} w={['100%', 'auto']}>
               <HStack spacing={3} align="center">
-                <Text fontSize={['md', 'lg']} fontWeight="600" color="headText.100">
+                <Text
+                  fontSize={['md', 'lg']}
+                  fontWeight="600"
+                  color="headText.100"
+                >
                   Review Status
                 </Text>
                 <Tag
@@ -147,10 +164,14 @@ const Report = () => {
                 {sortedFiles.map((file, index) => (
                   <Tr key={file.id || index}>
                     <Td>v{file.version}</Td>
-                    <Td>{file.documentUrl.split('/').pop()}</Td>
+                    <Td>{file.fileName}</Td>
                     <Td>
                       <HStack>
-                        <a href={file.documentUrl} target="_blank" rel="noreferrer">
+                        <a
+                          href={file.documentUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
                           <ChakraButton
                             size="sm"
                             variant="outline"
@@ -159,7 +180,13 @@ const Report = () => {
                             fontWeight={400}
                             fontSize={12}
                             borderRadius={10}
-                            rightIcon={<Image src="/images/download.svg" alt="download" boxSize={5} />}
+                            rightIcon={
+                              <Image
+                                src="/images/download.svg"
+                                alt="download"
+                                boxSize={5}
+                              />
+                            }
                           >
                             Download
                           </ChakraButton>
@@ -184,7 +211,7 @@ const Report = () => {
         </Box>
 
         {/* Comments */}
-        <Comments />
+        <Comments budgetId={id} />
       </VStack>
 
       {/* Approval Modal */}
@@ -194,7 +221,8 @@ const Report = () => {
           <ModalHeader>Confirm Approval</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            Are you sure you want to {switchChecked ? 'revoke approval for' : 'approve'} this budget?
+            Are you sure you want to{' '}
+            {switchChecked ? 'revoke approval for' : 'approve'} this budget?
           </ModalBody>
           <ModalFooter>
             <ChakraButton onClick={onClose} mr={3}>

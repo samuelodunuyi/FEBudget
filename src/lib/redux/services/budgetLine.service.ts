@@ -14,24 +14,22 @@ export const BudgetApi = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Budget'],
+  tagTypes: ['Budget', 'BudgetChat'],
   endpoints: (builder) => ({
-    createBudget: builder.mutation<any, { 
-      Year: number; 
-      File: File; 
-      Narration: string; 
-      DepartmentId: string; 
-    }>({
+    createBudget: builder.mutation<
+      any,
+      { Year: number; File: File; Narration: string; DepartmentId: string }
+    >({
       query: ({ Year, File, Narration, DepartmentId }) => {
         const formData = new FormData();
-        formData.append("Year", Year.toString());
-        formData.append("File", File);
-        formData.append("Narration", Narration);
-        formData.append("DepartmentId", DepartmentId);
+        formData.append('Year', Year.toString());
+        formData.append('File', File);
+        formData.append('Narration', Narration);
+        formData.append('DepartmentId', DepartmentId);
 
         return {
-          url: "/api/v1/Budget",
-          method: "POST",
+          url: '/api/v1/Budget',
+          method: 'POST',
           body: formData,
           headers: {},
         };
@@ -73,7 +71,7 @@ export const BudgetApi = createApi({
       invalidatesTags: ['Budget'],
     }),
 
-    // ✅ New endpoint for approving/revoking budget
+    // ✅ Approve / revoke budget
     approveBudget: builder.mutation({
       query: ({ id, isApproval }: { id: string; isApproval: boolean }) => ({
         url: `/api/v1/Budget/${id}/action`,
@@ -81,6 +79,47 @@ export const BudgetApi = createApi({
         params: { isApproval },
       }),
       invalidatesTags: ['Budget'],
+    }),
+
+    // ✅ Chat endpoints
+    createBudgetChat: builder.mutation<
+      any,
+      { budgetId: string; message: string }
+    >({
+      query: (body) => ({
+        url: '/api/v1/Budget/chat',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['BudgetChat'],
+    }),
+
+    getBudgetChats: builder.query<any, string>({
+      query: (id) => ({
+        url: `/api/v1/Budget/${id}/chat`,
+        method: 'GET',
+      }),
+      providesTags: ['BudgetChat'],
+    }),
+
+    updateBudgetChat: builder.mutation<
+      any,
+      { id: string; body: { message: string } }
+    >({
+      query: ({ id, body }) => ({
+        url: `/api/v1/Budget/chat/${id}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['BudgetChat'],
+    }),
+
+    deleteBudgetChat: builder.mutation<any, string>({
+      query: (id) => ({
+        url: `/api/v1/Budget/chat/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['BudgetChat'],
     }),
   }),
 });
@@ -91,5 +130,9 @@ export const {
   useGetBudgetQuery,
   useUpdateBudgetMutation,
   useDeleteBudgetMutation,
-  useApproveBudgetMutation, // <--- added hook
+  useApproveBudgetMutation,
+  useCreateBudgetChatMutation,
+  useGetBudgetChatsQuery,
+  useUpdateBudgetChatMutation,
+  useDeleteBudgetChatMutation,
 } = BudgetApi;

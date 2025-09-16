@@ -33,8 +33,8 @@ const START_YEAR = 2023;
 
 const Report = () => {
   const router = useRouter();
-  const [year, setYear] = useState<string>(''); 
-  const [status, setStatus] = useState<string>(''); 
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [status, seStatustStatus] = useState<string>(''); 
   const [searchInput, setSearchInput] = useState<string>(''); 
   const [search, setSearch] = useState<string>('');
   const [page, setPage] = useState<number>(1);

@@ -43,10 +43,13 @@ const SubmissionStatus = ({ budgets = [], isLoading = false }: SubmissionStatusP
     color: '#808080',
   };
 
-  const lastSubmitted = new Date(latestBudget.createdAt).toLocaleDateString(
-    'en-GB',
-    { day: 'numeric', month: 'short', year: 'numeric' }
-  );
+const lastSubmitted = latestBudget?.createdAt
+  ? new Date(latestBudget.createdAt).toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    })
+  : '—';
 
   const totalVersions = latestBudget.budgetFiles?.length || 0;
 

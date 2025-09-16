@@ -2,7 +2,7 @@
 
 import { Text, VStack, SimpleGrid, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import Comments from '~/lib/components/dashboard/Comments';
 import SubmissionStatus from '~/lib/components/dashboard/SubmissionStatus';
@@ -20,18 +20,24 @@ const Home = () => {
   const router = useRouter();
   const toast = useToast();
   const { userInfo } = useAppSelector((state) => state.auth);
-
+const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [createBudget, { isLoading }] = useCreateBudgetMutation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
-  // Fetch all budgets
-  const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(undefined);
+const queryArgs = useMemo(() => {
+  const q: Record<string, any> = {};
+  if (selectedYear) q.Year = Number(selectedYear); // match the API field name
+  return q;
+}, [selectedYear]);
+  console.log(selectedYear)
+const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
 
-  // Filter budgets by current user's department
   const departmentBudgets = data?.data?.result.filter(
     (b: { department: { id: any; }; }) => b.department?.id === userInfo?.department?.id
   );
+
+  console.log(departmentBudgets)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -85,7 +91,14 @@ const Home = () => {
 
       <VStack alignItems="stretch" spacing={6} w="full" mt={4}>
         <SimpleGrid columns={[1, 10]} spacing={4} w="full">
-          <Select2 name="year" options={yearOptions()} placeholder="Select Year" size="md" />
+<Select2
+  name="year"
+  options={yearOptions()}
+  placeholder="Select Year"
+  size="md"
+  value={selectedYear ?? undefined}
+  onChange={(val: any) => setSelectedYear(val)} // depends on your Select2 signature
+/>
           <Button text="Dashboard" size="md" px={14} onClick={handleDashboard} />
         </SimpleGrid>
 
@@ -106,7 +119,7 @@ const Home = () => {
           <VersionHistory budgets={departmentBudgets} isLoading={isLoadingBudgets} />
         </SimpleGrid>
 
-        <Comments />
+<Comments budgetId={departmentBudgets?.[0]?.id} />
       </VStack>
     </SimpleDashboardLayout>
   );
