@@ -19,6 +19,7 @@ import Button from '~/lib/components/ui/Button';
 import { useDownloadBudgetFileMutation } from '~/lib/redux/services/budgetLine.service';
 
 export type BudgetFile = {
+  updatedAt: string;
   id: string;
   documentUrl: string;
   version: number;
