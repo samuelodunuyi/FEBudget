@@ -16,7 +16,7 @@ type Budget = {
 };
 
 type SubmissionStatusProps = {
-  budgets?: Budget[];
+  budgets?: Budget;
   isLoading?: boolean;
 };
 
@@ -27,32 +27,26 @@ const statusMap: Record<number, { label: string; bg: string; color: string }> = 
   4: { label: 'Rejected', bg: '#f70000ff', color: '#ffffffff' },
 };
 
-const SubmissionStatus = ({ budgets = [], isLoading = false }: SubmissionStatusProps) => {
+const SubmissionStatus = ({ budgets, isLoading = false }: SubmissionStatusProps) => {
   if (isLoading) return <Text>Loading...</Text>;
-
-  if (!budgets.length)
+  if (!budgets)
     return <Text>No budgets found for your department.</Text>;
 
-  // Assuming the latest budget is the one with the latest createdAt
-  const latestBudget = budgets.reduce((prev, curr) =>
-    new Date(curr.createdAt) > new Date(prev.createdAt) ? curr : prev
-  );
-
-  const status = statusMap[latestBudget.status] || {
+  const status = statusMap[budgets.status] || {
     label: 'Unknown',
     bg: '#EDEDED',
     color: '#808080',
   };
 
-const lastSubmitted = latestBudget?.createdAt
-  ? new Date(latestBudget.createdAt).toLocaleDateString('en-GB', {
+const lastSubmitted = budgets?.createdAt
+  ? new Date(budgets.createdAt).toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'short',
       year: 'numeric',
     })
   : '—';
 
-  const totalVersions = latestBudget.budgetFiles?.length || 0;
+  const totalVersions = budgets.budgetFiles?.length || 0;
 
   return (
     <Box bg="white" rounded="16px" p={4} border="1px solid #EDEDED">

@@ -34,24 +34,19 @@ export type Budget = {
 };
 
 type VersionHistoryProps = {
-  budgets?: Budget[];
+  budgets?: Budget;
   isLoading?: boolean;
 };
 
-const VersionHistory = ({ budgets = [], isLoading = false }: VersionHistoryProps) => {
+const VersionHistory = ({ budgets, isLoading = false }: VersionHistoryProps) => {
   const [downloadBudgetFile] = useDownloadBudgetFileMutation();
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
 
   if (isLoading) return <Text>Loading...</Text>;
-  if (!budgets.length) return <Text>No version history available.</Text>;
-
-  // Get the latest budget by createdAt
-  const latestBudget = budgets.reduce((prev, curr) =>
-    new Date(curr.createdAt) > new Date(prev.createdAt) ? curr : prev
-  );
+  if (!budgets) return <Text>No version history available.</Text>;
 
   // Sort budget files by version descending
-  const sortedFiles = [...(latestBudget.budgetFiles || [])].sort(
+  const sortedFiles = [...(budgets.budgetFiles || [])].sort(
     (a, b) => b.version - a.version
   );
 

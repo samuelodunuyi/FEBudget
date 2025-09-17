@@ -33,7 +33,6 @@ const Home = () => {
 
   const { data, isLoading: isLoadingBudgets } = useGetBudgetByYearQuery(selectedYear);
 
-  console.log(data)
   const departmentBudgets = data?.data
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

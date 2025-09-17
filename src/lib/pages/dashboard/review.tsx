@@ -243,6 +243,7 @@ const Report = () => {
                 <Text color="headText.100" fontSize="14px">
                   Approve Budget
                 </Text>
+                {budget.status}
                 <Switch
                   size="md"
                   colorScheme="blue"
