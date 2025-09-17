@@ -55,7 +55,17 @@ const TopNav = ({ onLogoutClick, ...props }: TopNavProps) => {
       </Box>
 
       <Box>
-        <Image src="/images/budget.svg" alt="Budget" objectFit="contain" />
+<Text
+  fontFamily="Outfit"
+  fontWeight="700"
+  fontStyle="normal"
+  fontSize="33px"
+  lineHeight="100%"
+  letterSpacing="0"
+  color="#227CBF"
+>
+  Budget <span style={{ color: '#47B65C' }}>Management</span> System 1.0
+</Text>
       </Box>
 
       <HStack
