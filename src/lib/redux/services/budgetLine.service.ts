@@ -56,7 +56,7 @@ export const BudgetApi = createApi({
 
         getBudgetByYear: builder.query({
       query: (year) => ({
-        url: `api/v1/Budget/${year}`,
+        url: `api/v1/Budget/year/${year}`,
         method: 'GET',
       }),
       providesTags: ['Budget'],
