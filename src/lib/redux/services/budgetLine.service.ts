@@ -54,6 +54,15 @@ export const BudgetApi = createApi({
       providesTags: ['Budget'],
     }),
 
+        getBudgetByYear: builder.query({
+      query: (year) => ({
+        url: `api/v1/Budget/${year}`,
+        method: 'GET',
+      }),
+      providesTags: ['Budget'],
+    }),
+
+
         getBudgetsStat: builder.query({
       query: (params) => ({
         url: `api/v1/Budget/Stat`,
@@ -154,5 +163,6 @@ export const {
   useUpdateBudgetChatMutation,
   useGetBudgetsStatQuery,
   useDeleteBudgetChatMutation,
+  useGetBudgetByYearQuery,
   useDownloadBudgetFileMutation
 } = BudgetApi;

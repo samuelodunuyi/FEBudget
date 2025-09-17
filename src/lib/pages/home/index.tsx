@@ -2,7 +2,7 @@
 
 import { Text, VStack, SimpleGrid, useToast } from '@chakra-ui/react';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 
 import Comments from '~/lib/components/dashboard/Comments';
 import SubmissionStatus from '~/lib/components/dashboard/SubmissionStatus';
@@ -14,7 +14,7 @@ import Button from '~/lib/components/ui/Button';
 import Select2 from '~/lib/components/ui/Select2';
 import {
   useCreateBudgetMutation,
-  useGetBudgetsQuery,
+  useGetBudgetByYearQuery,
 } from '~/lib/redux/services/budgetLine.service';
 import { useAppSelector } from '~/lib/redux/store';
 import { yearOptions } from '~/lib/utils/formatter';
@@ -30,17 +30,11 @@ const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
-  const queryArgs = useMemo(() => {
-    const q: Record<string, any> = {};
-    if (selectedYear) q.Year = Number(selectedYear);
-    return q;
-  }, [selectedYear]);
-  const { data, isLoading: isLoadingBudgets } = useGetBudgetsQuery(queryArgs);
 
-  const departmentBudgets = data?.data?.result.filter(
-    (b: { department: { id: any } }) =>
-      b.department?.id === userInfo?.department?.id
-  );
+  const { data, isLoading: isLoadingBudgets } = useGetBudgetByYearQuery(selectedYear);
+
+  console.log(data)
+  const departmentBudgets = data?.data
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
