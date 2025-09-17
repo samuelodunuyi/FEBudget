@@ -125,7 +125,7 @@ const Home = () => {
           />
         </SimpleGrid>
 
-        <Comments budgetId={departmentBudgets?.[0]?.id} />
+        <Comments budgetId={departmentBudgets?.id} />
       </VStack>
     </SimpleDashboardLayout>
   );
