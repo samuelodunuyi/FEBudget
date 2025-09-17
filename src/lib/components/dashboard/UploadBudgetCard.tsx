@@ -20,7 +20,6 @@ const UploadBudgetCard = ({
   return (
     <Box bg="white" rounded="16px" p={4} border="1px solid #EDEDED">
       <HStack spacing={3} mb={4} align="center">
-        <Image src="/images/upload-3.svg" alt="Upload" boxSize={6} />
         <Text fontSize={['md', 'lg']} fontWeight="600" color="headText.100">
           Upload Budget Document
         </Text>
@@ -33,22 +32,22 @@ const UploadBudgetCard = ({
         position="relative"
       >
         <Center flexDirection="column" textAlign="center" gap={2}>
-          <Image src="/images/upload.svg" alt="upload" />
+        <Image src="/images/upload-3.svg" alt="Upload" boxSize={6} />
           <VStack spacing={0}>
-            <Text color="brand.100" fontWeight={400} fontSize="sm" as="span">
+            <Text color="brand.100" fontWeight={400} fontSize="md" as="span">
               {selectedFileName ? 'Selected file:' : 'Click to upload '}
               {selectedFileName ? (
-                <Text as="span" color="#808080" fontSize="sm">
+                <Text as="span" color="#808080" fontSize="md">
                   {' '}
                   {selectedFileName}
                 </Text>
               ) : (
-                <Text color="bodyText.300" fontSize="sm" as="span">
+                <Text color="bodyText.300" fontSize="md" as="span">
                   Files
                 </Text>
               )}
             </Text>
-            <Text color="bodyText.300" fontSize="sm" as="span">
+            <Text color="bodyText.300" fontSize="md" as="span">
               Supports PDF, DOCX, XLSX files
             </Text>
           </VStack>
