@@ -262,31 +262,32 @@ const Report = () => {
               Version History
             </Text>
             <HStack>
-              {/* Hidden input with id */}
-              <Input
-                type="file"
-                accept=".xlsx,.xls,.csv,.pdf"
-                id="budgetFile"
-                onChange={handleFileChange}
-                display="none"
-              />
+<Input
+  type="file"
+  accept=".xlsx,.xls,.csv,.pdf"
+  id="budgetFile"
+  onChange={handleFileChange}
+  display="none"
+/>
 
-              {/* Label linked to input */}
-              <ChakraButton
-                as="span"
-                size="md"
-                variant="outline"
-                border="1px solid #808080"
-                color="#333333"
-                fontWeight={400}
-                fontSize="12px"
-                borderRadius="10px"
-                rightIcon={
-                  <Image src="/images/upload-2.svg" alt="upload" boxSize={5} />
-                }
-              >
-                Choose File
-              </ChakraButton>
+<label htmlFor="budgetFile">
+  <ChakraButton
+    as="span"
+    size="md"
+    variant="outline"
+    border="1px solid #808080"
+    color="#333333"
+    fontWeight={400}
+    fontSize="12px"
+    borderRadius="10px"
+    rightIcon={
+      <Image src="/images/upload-2.svg" alt="upload" boxSize={5} />
+    }
+  >
+    Choose File
+  </ChakraButton>
+</label>
+
 
               {selectedFileName && (
                 <Text fontSize="sm" color="gray.600">
