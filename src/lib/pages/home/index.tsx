@@ -30,10 +30,10 @@ const Home = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
+  const { data, isLoading: isLoadingBudgets } =
+    useGetBudgetByYearQuery(selectedYear);
 
-  const { data, isLoading: isLoadingBudgets } = useGetBudgetByYearQuery(selectedYear);
-
-  const departmentBudgets = data?.data
+  const departmentBudgets = data?.data;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -96,10 +96,14 @@ const Home = () => {
             value={selectedYear ?? undefined}
             onChange={(val: any) => setSelectedYear(val)}
           />
-{userInfo?.role && [2, 3, 4].includes(userInfo.role) && (
-  <Button text="Dashboard" size="md" px={14} onClick={handleDashboard} />
-)}
-
+          {userInfo?.role && [2, 3, 4].includes(userInfo.role) && (
+            <Button
+              text="Dashboard"
+              size="md"
+              px={14}
+              onClick={handleDashboard}
+            />
+          )}
         </SimpleGrid>
 
         <Text fontSize={['md', 'lg']} fontWeight="600" color="headText.100">
@@ -125,7 +129,9 @@ const Home = () => {
           />
         </SimpleGrid>
 
-        <Comments budgetId={departmentBudgets?.id} />
+        {departmentBudgets?.id !== '00000000-0000-0000-0000-000000000000' && (
+          <Comments budgetId={departmentBudgets?.id} />
+        )}
       </VStack>
     </SimpleDashboardLayout>
   );
