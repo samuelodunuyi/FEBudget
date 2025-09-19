@@ -31,7 +31,7 @@ import {
   Input,
 } from '@chakra-ui/react';
 import { skipToken } from "@reduxjs/toolkit/query";  
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import Comments from '~/lib/components/dashboard/Comments';
@@ -50,6 +50,7 @@ import {
 
 const statusMap = {
   1: { label: 'Submitted', bg: '#FF7926', color: '#FFD3B7' },
+  0: { label: 'Pending Submission', bg: '#808080', color: '#EDEDED' },
   2: { label: 'Pending Submission', bg: '#808080', color: '#EDEDED' },
   3: { label: 'Approved', bg: '#47B65C', color: '#B8FFAE' },
   4: { label: 'Rejected', bg: '#f70000ff', color: '#ffffffff' },
@@ -59,6 +60,8 @@ const statusMap = {
 const Report = () => {
   const params = useParams();
   const idParam = params?.id;
+  const router = useRouter(); // at component top
+
 const typeParam = params?.type;
   const type = Array.isArray(typeParam)
     ? parseInt(typeParam[0], 10)
@@ -81,6 +84,9 @@ const {
   data: deptQueryData,
 } = useGetDepartmentByIdQuery(type === 0 && id ? id : skipToken);
 
+const [currentBudgetId, setCurrentBudgetId] = useState<string | null>(
+    type === 1 ? id : null
+  );
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
@@ -99,15 +105,16 @@ useEffect(() => {
 
 const budget = type === 1 ? budgetQueryData?.data ?? null : null;
 const departmentData = type === 0 ? deptQueryData?.data ?? null : null;
+console.log(budget)
 const currentStatus =
   budget && budget.status
     ? statusMap[budget.status as keyof typeof statusMap] || {
-        label: 'Unknown',
+        label: 'Not Submitted',
         bg: '#EDEDED',
         color: '#808080',
       }
     : {
-        label: 'Unknown',
+        label: 'Not Submitted',
         bg: '#EDEDED',
         color: '#808080',
       };
@@ -117,8 +124,6 @@ const sortedFiles = budget?.budgetFiles
   : [];
 
 const handleSwitchChange = () => {
-  // const newValue = !switchChecked; // calculate the intended new value
-  // setSwitchChecked(newValue);
   onOpen();
 };
 
@@ -174,12 +179,19 @@ const confirmApproval = async () => {
     }
 
     try {
-await createBudget({
-  Year: new Date().getFullYear(),
-  File: selectedFile,
-  Narration: `${type === 0 ? departmentData?.name : budget?.department?.name} Budget Template Upload`,
-  DepartmentId: type === 0 ? departmentData?.id : budget?.department?.id,
-}).unwrap();
+      const res = await createBudget({
+        Year: new Date().getFullYear(),
+        File: selectedFile,
+        Narration: `${type === 0 ? departmentData?.name : budgetQueryData?.data?.department?.name} Budget Template Upload`,
+        DepartmentId: type === 0 ? departmentData?.id : budgetQueryData?.data?.department?.id,
+      }).unwrap();
+
+            const newId = res?.data?.id;
+
+     if (newId) {
+        setCurrentBudgetId(newId);
+    router.replace(`/dashboard/${newId}/${type}`);
+
 
       toast({
         title: 'Budget template submitted successfully',
@@ -190,6 +202,15 @@ await createBudget({
 
       setSelectedFile(null);
       setSelectedFileName('');
+  }
+      else {
+        toast({
+          title: 'Created but no ID returned',
+          status: 'warning',
+          duration: 3000,
+          isClosable: true,
+        });
+      }
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -262,6 +283,7 @@ await createBudget({
                 >
                   Review Status
                 </Text>
+                {currentStatus.label}
                 <Tag
                   bg={currentStatus.bg}
                   color={currentStatus.color}
