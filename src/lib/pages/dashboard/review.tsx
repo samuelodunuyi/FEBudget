@@ -70,7 +70,7 @@ const Report = () => {
 
   if (isLoading) return <Text>Loading...</Text>;
   if (isError || !data) return <Text>Error loading budget data</Text>;
-
+console.log(id)
   const budget = data.data.result.find(
     (b: { id: string | string[] | undefined }) => b.id === id
   );
