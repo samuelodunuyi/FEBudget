@@ -66,6 +66,7 @@ const Report = () => {
   const { data: budgetStatData} = useGetBudgetsStatQuery(queryArgs);
   console.log(budgetStatData)
   const budgets = budgetData?.data?.result ?? [];
+  console.log(budgets)
   const mapStatus = (statusNum: number | undefined) => {
     switch (statusNum) {
       case 1:
@@ -265,7 +266,7 @@ const onPageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                           fontWeight={400}
                           fontSize={14}
                           px={6}
-                          onClick={() => handleReview(item.departmentId)}
+                          onClick={() => handleReview(item.department.id)}
                         />
                       </Td>
                     </Tr>
