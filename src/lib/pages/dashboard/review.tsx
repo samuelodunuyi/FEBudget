@@ -190,7 +190,8 @@ const confirmApproval = async () => {
 
      if (newId) {
         setCurrentBudgetId(newId);
-    router.replace(`/dashboard/${newId}/${type}`);
+    router.replace(`/dashboard/${newId}/${1}`);
+router.refresh(); // forces a re-render / data refetch
 
 
       toast({
