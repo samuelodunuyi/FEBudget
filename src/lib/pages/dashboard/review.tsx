@@ -32,7 +32,7 @@ import {
 } from '@chakra-ui/react';
 import { skipToken } from "@reduxjs/toolkit/query";  
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Comments from '~/lib/components/dashboard/Comments';
 import HeaderBack from '~/lib/components/layout/HeaderBack';
@@ -72,29 +72,34 @@ const typeParam = params?.type;
   const id = Array.isArray(idParam) ? idParam[0] : (idParam ?? '');
   const [createBudget] = useCreateBudgetMutation();
 
-  const {
-    data,
-    isLoading,
-  } = useGetBudgetQuery(type === 1 ? id : skipToken);
+const {
+  data: budgetQueryData,
+  isLoading,
+} = useGetBudgetQuery(type === 1 && id ? id : skipToken);
 
-  const {
-    data: departmentData,
-  } = useGetDepartmentByIdQuery(type === 0 ? id : skipToken);
-  console.log(departmentData)
+const {
+  data: deptQueryData,
+} = useGetDepartmentByIdQuery(type === 0 && id ? id : skipToken);
+
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
-
   const [approveBudget] = useApproveBudgetMutation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [switchChecked, setSwitchChecked] = useState(false);
+useEffect(() => {
+  const budget = type === 1 ? budgetQueryData?.data ?? null : null;
+  if (type === 1 && budget) {
+    setSwitchChecked(budget.status === 3);
+  }
+}, [budgetQueryData, type]); 
+
 
   if (isLoading) return <Text>Loading...</Text>;
-const budget = data?.data ?? null;
 
-// if (id !== EMPTY_GUID && (isError || !data)) {
-//   return <Text>Error loading budget data</Text>;
-// }
+const budget = type === 1 ? budgetQueryData?.data ?? null : null;
+const departmentData = type === 0 ? deptQueryData?.data ?? null : null;
+
 const currentStatus =
   budget && budget.status
     ? statusMap[budget.status as keyof typeof statusMap] || {
@@ -112,39 +117,44 @@ const sortedFiles = budget?.budgetFiles
   ? [...budget.budgetFiles].sort((a, b) => b.version - a.version)
   : [];
 
-  const handleSwitchChange = () => {
-    setSwitchChecked((prev) => !prev);
-    onOpen();
-  };
+const handleSwitchChange = () => {
+  // const newValue = !switchChecked; // calculate the intended new value
+  // setSwitchChecked(newValue);
+  onOpen();
+};
 
-  const confirmApproval = async () => {
-    try {
-      await approveBudget({
-        id: budget.id,
-        isApproval: !switchChecked,
-      }).unwrap();
-      setSwitchChecked(!switchChecked);
-      toast({
-        title: switchChecked
-          ? 'Approval revoked successfully'
-          : 'Budget approved successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    } catch (error) {
-      console.error('Error updating budget approval:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update approval status',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      onClose();
-    }
-  };
+const confirmApproval = async () => {
+    const newApprovalStatus = !switchChecked;
+
+  try {
+    // use the updated value here
+    await approveBudget({
+      id: budget.id,
+      isApproval: newApprovalStatus, // notice: this is opposite of current state
+    }).unwrap();
+
+    toast({
+      title: !switchChecked
+        ? 'Budget approved successfully'
+        : 'Approval revoked successfully',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  } catch (error) {
+    console.error('Error updating budget approval:', error);
+    toast({
+      title: 'Error',
+      description: 'Failed to update approval status',
+      status: 'error',
+      duration: 3000,
+      isClosable: true,
+    });
+  } finally {
+    onClose();
+  }
+};
+
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
