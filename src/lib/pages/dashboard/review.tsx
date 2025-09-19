@@ -32,13 +32,14 @@ import {
 } from '@chakra-ui/react';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { skipToken } from "@reduxjs/toolkit/query";  
 
 import Comments from '~/lib/components/dashboard/Comments';
 import HeaderBack from '~/lib/components/layout/HeaderBack';
 import SimpleDashboardLayout from '~/lib/components/layout/SimpleDashboardLayout';
 import Pagination from '~/lib/components/ui/Pagination';
 import {
-  useGetBudgetsQuery,
+  useGetBudgetQuery,
   useCreateBudgetMutation,
   useApproveBudgetMutation,
   useDownloadBudgetFileMutation,
@@ -51,6 +52,8 @@ const statusMap = {
   4: { label: 'Rejected', bg: '#f70000ff', color: '#ffffffff' },
 } as const;
 
+const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
+
 const Report = () => {
   const params = useParams();
   const idParam = params?.id;
@@ -60,7 +63,9 @@ const Report = () => {
   const id = Array.isArray(idParam) ? idParam[0] : (idParam ?? '');
   const [createBudget] = useCreateBudgetMutation();
 
-  const { data, isLoading, isError } = useGetBudgetsQuery(undefined);
+  const { data, isLoading, isError } = useGetBudgetQuery(
+    id !== EMPTY_GUID ? id : skipToken
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
@@ -70,12 +75,7 @@ const Report = () => {
 
   if (isLoading) return <Text>Loading...</Text>;
   if (isError || !data) return <Text>Error loading budget data</Text>;
-  const budget = data.data.result.find(
-    (b: { id: string | string[] | undefined }) => b.department.id === id
-  );
-console.log(data)
-
-  if (!budget) return <Text>Budget not found</Text>;
+  const budget = data.data
 
   const currentStatus = statusMap[budget.status as keyof typeof statusMap] || {
     label: 'Unknown',

@@ -266,7 +266,7 @@ const onPageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                           fontWeight={400}
                           fontSize={14}
                           px={6}
-                          onClick={() => handleReview(item.department.id)}
+                          onClick={() => handleReview(item.id)}
                         />
                       </Td>
                     </Tr>
