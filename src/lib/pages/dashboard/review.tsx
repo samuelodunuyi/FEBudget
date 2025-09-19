@@ -105,7 +105,7 @@ useEffect(() => {
 
 const budget = type === 1 ? budgetQueryData?.data ?? null : null;
 const departmentData = type === 0 ? deptQueryData?.data ?? null : null;
-console.log(budget)
+console.log(currentBudgetId)
 const currentStatus =
   budget && budget.status
     ? statusMap[budget.status as keyof typeof statusMap] || {
