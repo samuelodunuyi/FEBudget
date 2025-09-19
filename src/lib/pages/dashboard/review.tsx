@@ -45,6 +45,11 @@ import {
   useDownloadBudgetFileMutation,
 } from '~/lib/redux/services/budgetLine.service';
 
+
+import {
+  useGetDepartmentByIdQuery,
+} from '~/lib/redux/services/user.service';
+
 const statusMap = {
   1: { label: 'Submitted', bg: '#FF7926', color: '#FFD3B7' },
   2: { label: 'Pending Submission', bg: '#808080', color: '#EDEDED' },
@@ -52,20 +57,33 @@ const statusMap = {
   4: { label: 'Rejected', bg: '#f70000ff', color: '#ffffffff' },
 } as const;
 
-const EMPTY_GUID = "00000000-0000-0000-0000-000000000000";
 
 const Report = () => {
   const params = useParams();
   const idParam = params?.id;
+const typeParam = params?.type;
+  const type = Array.isArray(typeParam)
+    ? parseInt(typeParam[0], 10)
+    : parseInt(typeParam ?? '1', 10);
+
   const [downloadBudgetFile] = useDownloadBudgetFileMutation();
   const toast = useToast();
 
+
+  
   const id = Array.isArray(idParam) ? idParam[0] : (idParam ?? '');
   const [createBudget] = useCreateBudgetMutation();
 
-  const { data, isLoading, isError } = useGetBudgetQuery(
-    id !== EMPTY_GUID ? id : skipToken
-  );
+  const {
+    data,
+    isLoading,
+  } = useGetBudgetQuery(type === 1 ? id : skipToken);
+
+  const {
+    data: departmentData,
+  } = useGetDepartmentByIdQuery(type === 0 ? id : skipToken);
+  console.log(departmentData)
+
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
 
@@ -74,18 +92,27 @@ const Report = () => {
   const [switchChecked, setSwitchChecked] = useState(false);
 
   if (isLoading) return <Text>Loading...</Text>;
-  if (isError || !data) return <Text>Error loading budget data</Text>;
-  const budget = data.data
+const budget = data?.data ?? null;
 
-  const currentStatus = statusMap[budget.status as keyof typeof statusMap] || {
-    label: 'Unknown',
-    bg: '#EDEDED',
-    color: '#808080',
-  };
+// if (id !== EMPTY_GUID && (isError || !data)) {
+//   return <Text>Error loading budget data</Text>;
+// }
+const currentStatus =
+  budget && budget.status
+    ? statusMap[budget.status as keyof typeof statusMap] || {
+        label: 'Unknown',
+        bg: '#EDEDED',
+        color: '#808080',
+      }
+    : {
+        label: 'Unknown',
+        bg: '#EDEDED',
+        color: '#808080',
+      };
 
-  const sortedFiles = [...(budget.budgetFiles || [])].sort(
-    (a, b) => b.version - a.version
-  );
+const sortedFiles = budget?.budgetFiles
+  ? [...budget.budgetFiles].sort((a, b) => b.version - a.version)
+  : [];
 
   const handleSwitchChange = () => {
     setSwitchChecked((prev) => !prev);
@@ -140,12 +167,12 @@ const Report = () => {
     }
 
     try {
-      await createBudget({
-        Year: new Date().getFullYear(),
-        File: selectedFile,
-        Narration: `${budget?.department?.name} Budget Template Upload`,
-        DepartmentId: budget?.department?.id || '',
-      }).unwrap();
+await createBudget({
+  Year: new Date().getFullYear(),
+  File: selectedFile,
+  Narration: `${type === 0 ? departmentData?.data?.name : budget?.department?.name} Budget Template Upload`,
+  DepartmentId: type === 0 ? departmentData?.data?.id : budget?.department?.id,
+}).unwrap();
 
       toast({
         title: 'Budget template submitted successfully',
@@ -207,7 +234,10 @@ const Report = () => {
             fontWeight="500"
             textTransform="capitalize"
           >
-            {budget?.department?.name || ''} Budget Review
+  {(type === 0
+    ? departmentData?.data?.name
+    : budget?.department?.name) || ''}{' '}
+  Budget Review
           </Text>
         </Stack>
       </HStack>
@@ -241,20 +271,20 @@ const Report = () => {
                 Mark this submission as reviewed or pending
               </Text>
             </VStack>
-            {budget.budgetFiles?.length > 0 && (
-              <HStack spacing={4} bg="#EDEDED" rounded="10px" p={4}>
-                <Text color="headText.100" fontSize="14px">
-                  Approve Budget
-                </Text>
-                {budget.status}
-                <Switch
-                  size="md"
-                  colorScheme="blue"
-                  isChecked={budget.status === 3 || switchChecked}
-                  onChange={handleSwitchChange}
-                />
-              </HStack>
-            )}
+{budget && budget.budgetFiles?.length > 0 && (
+  <HStack spacing={4} bg="#EDEDED" rounded="10px" p={4}>
+    <Text color="headText.100" fontSize="14px">
+      Approve Budget
+    </Text>
+    {budget.status}
+    <Switch
+      size="md"
+      colorScheme="blue"
+      isChecked={budget.status === 3 || switchChecked}
+      onChange={handleSwitchChange}
+    />
+  </HStack>
+)}
           </HStack>
         </Box>
 

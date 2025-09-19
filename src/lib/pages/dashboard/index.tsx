@@ -57,7 +57,7 @@ const Report = () => {
     if (year) q.year = Number(year);
     if (status) q.status = Number(status);
     if (search) q.search = search;
-    q.page = page;
+    q.curentPage = page;
     q.pageSize = pageSize;
     return q;
   }, [year, status, search, page, pageSize]);
@@ -108,9 +108,9 @@ const Report = () => {
 
   const heads = ['Department', 'Status', 'Last Submitted', 'Versions', 'Actions'];
 
-  const handleReview = (id: string) => {
-    router.push(`/dashboard/${id}`);
-  };
+const handleReview = (id: string, type: number) => {
+  router.push(`/dashboard/${id}/${type}`);
+};
 
   const handleSettings = () => {
     router.push('/settings');
@@ -259,16 +259,24 @@ const onPageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
                       </Td>
                       <Td>{lastSubmitted}</Td>
                       <Td>{versions}</Td>
-                      <Td>
-                        <Button
-                          text="Review"
-                          size="sm"
-                          fontWeight={400}
-                          fontSize={14}
-                          px={6}
-                          onClick={() => handleReview(item.id)}
-                        />
-                      </Td>
+<Td>
+  <Button
+    text="Review"
+    size="sm"
+    fontWeight={400}
+    fontSize={14}
+    px={6}
+    onClick={() =>
+      handleReview(
+        item.id === "00000000-0000-0000-0000-000000000000"
+          ? item.department?.id
+          : item.id,
+        item.id === "00000000-0000-0000-0000-000000000000" ? 0 : 1
+      )
+    }
+  />
+</Td>
+
                     </Tr>
                   );
                 })
