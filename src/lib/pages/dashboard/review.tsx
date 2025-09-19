@@ -70,10 +70,11 @@ const Report = () => {
 
   if (isLoading) return <Text>Loading...</Text>;
   if (isError || !data) return <Text>Error loading budget data</Text>;
-console.log(id)
   const budget = data.data.result.find(
-    (b: { id: string | string[] | undefined }) => b.id === id
+    (b: { id: string | string[] | undefined }) => b.department.id === id
   );
+console.log(data)
+
   if (!budget) return <Text>Budget not found</Text>;
 
   const currentStatus = statusMap[budget.status as keyof typeof statusMap] || {
