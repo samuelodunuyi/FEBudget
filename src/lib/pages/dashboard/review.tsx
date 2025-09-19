@@ -99,7 +99,6 @@ useEffect(() => {
 
 const budget = type === 1 ? budgetQueryData?.data ?? null : null;
 const departmentData = type === 0 ? deptQueryData?.data ?? null : null;
-
 const currentStatus =
   budget && budget.status
     ? statusMap[budget.status as keyof typeof statusMap] || {
@@ -178,8 +177,8 @@ const confirmApproval = async () => {
 await createBudget({
   Year: new Date().getFullYear(),
   File: selectedFile,
-  Narration: `${type === 0 ? departmentData?.data?.name : budget?.department?.name} Budget Template Upload`,
-  DepartmentId: type === 0 ? departmentData?.data?.id : budget?.department?.id,
+  Narration: `${type === 0 ? departmentData?.name : budget?.department?.name} Budget Template Upload`,
+  DepartmentId: type === 0 ? departmentData?.id : budget?.department?.id,
 }).unwrap();
 
       toast({
@@ -243,7 +242,7 @@ await createBudget({
             textTransform="capitalize"
           >
   {(type === 0
-    ? departmentData?.data?.name
+    ? departmentData?.name
     : budget?.department?.name) || ''}{' '}
   Budget Review
           </Text>
