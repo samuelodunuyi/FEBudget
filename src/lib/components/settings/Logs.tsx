@@ -13,49 +13,29 @@ import { useState } from 'react';
 
 import EmptyState from '../ui/EmptyState';
 import Pagination from '../ui/Pagination';
-import {
-  formatDate2,
-  tableCellStyle,
-  tableHeaderStyle,
-} from '~/lib/utils/formatter';
+import { useGetUserActivitiesQuery } from '~/lib/redux/services/user.service'; 
+import { formatDate2, tableCellStyle, tableHeaderStyle } from '~/lib/utils/formatter';
 
 const Logs = () => {
   const [pageSize, setPageSize] = useState(100);
   const [currentPage, setCurrentPage] = useState(1);
-  const isLoading = false;
 
-  const tableHead = ['S/N', 'Name', 'Email', 'Date/Time', 'Action'];
+  // Fetch user activities with query params
+  const { data, isLoading } = useGetUserActivitiesQuery({
+    CurrentPage: currentPage,
+    PageSize: pageSize,
+  });
 
-  const userActivitiesData = [
-    {
-      id: 1,
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      dateTime: '2021-01-01 12:00:00',
-      action: 'Login',
-    },
-    {
-      id: 2,
-      name: 'Jane Doe',
-      email: 'jane.doe@example.com',
-      dateTime: '2021-01-01 12:00:00',
-      action: 'Logout',
-    },
-    {
-      id: 3,
-      name: 'Jim Beam',
-      email: 'jim.beam@example.com',
-      dateTime: '2021-01-01 12:00:00',
-      action: 'Logout',
-    },
-  ];
+  const tableHead = ['S/N', 'Initiator', 'Details', 'Date/Time', 'Action'];
+
+  const activities = data?.data?.result ?? [];
 
   const handlePageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newPageSize = Number(e.target.value);
-    const totalItems = userActivitiesData?.length || 0;
+    const totalItems = data?.data?.totalRecords || 0;
     const newTotalPages = Math.ceil(totalItems / newPageSize);
 
-    // If current page exceeds new total pages, reset to last valid page
+    // Ensure currentPage stays valid
     if (currentPage > newTotalPages && newTotalPages > 0) {
       setCurrentPage(newTotalPages);
     }
@@ -77,6 +57,7 @@ const Logs = () => {
             </Tr>
           </Thead>
           <Tbody>
+            {/* Loading skeleton */}
             {isLoading &&
               Array.from({ length: 5 }).map((_, rowIndex) => (
                 <Tr key={rowIndex}>
@@ -88,7 +69,8 @@ const Logs = () => {
                 </Tr>
               ))}
 
-            {!isLoading && userActivitiesData?.length === 0 && (
+            {/* Empty state */}
+            {!isLoading && activities.length === 0 && (
               <Tr>
                 <Td colSpan={tableHead.length} p={0}>
                   <EmptyState
@@ -99,24 +81,29 @@ const Logs = () => {
               </Tr>
             )}
 
+            {/* Data rows */}
             {!isLoading &&
-              userActivitiesData?.length > 0 &&
-              userActivitiesData.map((item: any, index: number) => (
+              activities.length > 0 &&
+              activities.map((item: any, index: number) => (
                 <Tr key={item.id} cursor="pointer" _hover={{ bg: 'gray.50' }}>
-                  <Td sx={tableCellStyle}>{index + 1}</Td>
-                  <Td sx={tableCellStyle}>{item.name}</Td>
-                  <Td sx={tableCellStyle}>{item.email}</Td>
-                  <Td sx={tableCellStyle}>{formatDate2(item.dateTime)}</Td>
+                  <Td sx={tableCellStyle}>
+                    {(currentPage - 1) * pageSize + (index + 1)}
+                  </Td>
+                  <Td sx={tableCellStyle}>{item.initiator}</Td>
+                  <Td sx={tableCellStyle}>{item.details}</Td>
+                  <Td sx={tableCellStyle}>{formatDate2(item.createdAt)}</Td>
                   <Td sx={tableCellStyle}>{item.action}</Td>
                 </Tr>
               ))}
           </Tbody>
         </Table>
-        {!isLoading && userActivitiesData?.length > 0 && (
+
+        {/* Pagination */}
+        {!isLoading && activities.length > 0 && (
           <Pagination
             currentPage={currentPage}
             pageSize={pageSize}
-            totalItems={userActivitiesData?.length || 0}
+            totalItems={data?.data?.totalRecords || 0}
             onPageChange={setCurrentPage}
             onPageSizeChange={handlePageSizeChange}
           />
