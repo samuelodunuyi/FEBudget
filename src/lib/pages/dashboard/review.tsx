@@ -30,7 +30,7 @@ import {
   useToast,
   Input,
 } from '@chakra-ui/react';
-import { skipToken } from "@reduxjs/toolkit/query";  
+import { skipToken } from '@reduxjs/toolkit/query';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -44,9 +44,7 @@ import {
   useApproveBudgetMutation,
   useDownloadBudgetFileMutation,
 } from '~/lib/redux/services/budgetLine.service';
-import {
-  useGetDepartmentByIdQuery,
-} from '~/lib/redux/services/user.service';
+import { useGetDepartmentByIdQuery } from '~/lib/redux/services/user.service';
 
 const statusMap = {
   1: { label: 'Submitted', bg: '#FF7926', color: '#FFD3B7' },
@@ -56,13 +54,12 @@ const statusMap = {
   4: { label: 'Rejected', bg: '#f70000ff', color: '#ffffffff' },
 } as const;
 
-
 const Report = () => {
   const params = useParams();
   const idParam = params?.id;
   const router = useRouter(); // at component top
 
-const typeParam = params?.type;
+  const typeParam = params?.type;
   const type = Array.isArray(typeParam)
     ? parseInt(typeParam[0], 10)
     : parseInt(typeParam ?? '1', 10);
@@ -70,21 +67,18 @@ const typeParam = params?.type;
   const [downloadBudgetFile] = useDownloadBudgetFileMutation();
   const toast = useToast();
 
-
-  
   const id = Array.isArray(idParam) ? idParam[0] : (idParam ?? '');
-  const [createBudget] = useCreateBudgetMutation();
+  const [createBudget, { isLoading: isUploading }] = useCreateBudgetMutation();
 
-const {
-  data: budgetQueryData,
-  isLoading,
-} = useGetBudgetQuery(type === 1 && id ? id : skipToken);
+  const { data: budgetQueryData, isLoading } = useGetBudgetQuery(
+    type === 1 && id ? id : skipToken
+  );
 
-const {
-  data: deptQueryData,
-} = useGetDepartmentByIdQuery(type === 0 && id ? id : skipToken);
+  const { data: deptQueryData } = useGetDepartmentByIdQuery(
+    type === 0 && id ? id : skipToken
+  );
 
-const [currentBudgetId, setCurrentBudgetId] = useState<string | null>(
+  const [currentBudgetId, setCurrentBudgetId] = useState<string | null>(
     type === 1 ? id : null
   );
 
@@ -93,72 +87,70 @@ const [currentBudgetId, setCurrentBudgetId] = useState<string | null>(
   const [approveBudget] = useApproveBudgetMutation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [switchChecked, setSwitchChecked] = useState(false);
-useEffect(() => {
-  const budget = type === 1 ? budgetQueryData?.data ?? null : null;
-  if (type === 1 && budget) {
-    setSwitchChecked(budget.status === 3);
-  }
-}, [budgetQueryData, type]); 
-
+  useEffect(() => {
+    const budget = type === 1 ? (budgetQueryData?.data ?? null) : null;
+    if (type === 1 && budget) {
+      setSwitchChecked(budget.status === 3);
+    }
+  }, [budgetQueryData, type]);
 
   if (isLoading) return <Text>Loading...</Text>;
 
-const budget = type === 1 ? budgetQueryData?.data ?? null : null;
-const departmentData = type === 0 ? deptQueryData?.data ?? null : null;
-console.log(currentBudgetId)
-const currentStatus =
-  budget && budget.status
-    ? statusMap[budget.status as keyof typeof statusMap] || {
-        label: 'Not Submitted',
-        bg: '#EDEDED',
-        color: '#808080',
-      }
-    : {
-        label: 'Not Submitted',
-        bg: '#EDEDED',
-        color: '#808080',
-      };
+  const budget = type === 1 ? (budgetQueryData?.data ?? null) : null;
+  const departmentData = type === 0 ? (deptQueryData?.data ?? null) : null;
+  console.log(currentBudgetId);
+  const currentStatus =
+    budget && budget.status
+      ? statusMap[budget.status as keyof typeof statusMap] || {
+          label: 'Not Submitted',
+          bg: '#EDEDED',
+          color: '#808080',
+        }
+      : {
+          label: 'Not Submitted',
+          bg: '#EDEDED',
+          color: '#808080',
+        };
 
-const sortedFiles = budget?.budgetFiles
-  ? [...budget.budgetFiles].sort((a, b) => b.version - a.version)
-  : [];
+  const sortedFiles = budget?.budgetFiles
+    ? [...budget.budgetFiles].sort((a, b) => b.version - a.version)
+    : [];
 
-const handleSwitchChange = () => {
-  onOpen();
-};
+  const handleSwitchChange = () => {
+    onOpen();
+  };
 
-const confirmApproval = async () => {
+  const confirmApproval = async () => {
     const newApprovalStatus = !switchChecked;
 
-  try {
-    // use the updated value here
-    await approveBudget({
-      id: budget.id,
-      isApproval: newApprovalStatus, // notice: this is opposite of current state
-    }).unwrap();
+    try {
+      // use the updated value here
+      await approveBudget({
+        id: budget.id,
+        isApproval: newApprovalStatus, // notice: this is opposite of current state
+      }).unwrap();
 
-    toast({
-      title: !switchChecked
-        ? 'Budget approved successfully'
-        : 'Approval revoked successfully',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
-  } catch (error) {
-    console.error('Error updating budget approval:', error);
-    toast({
-      title: 'Error',
-      description: 'Failed to update approval status',
-      status: 'error',
-      duration: 3000,
-      isClosable: true,
-    });
-  } finally {
-    onClose();
-  }
-};
-
+      toast({
+        title: !switchChecked
+          ? 'Budget approved successfully'
+          : 'Approval revoked successfully',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      console.error('Error updating budget approval:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update approval status',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      onClose();
+    }
+  };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -182,29 +174,34 @@ const confirmApproval = async () => {
       const res = await createBudget({
         Year: new Date().getFullYear(),
         File: selectedFile,
-        Narration: `${type === 0 ? departmentData?.name : budgetQueryData?.data?.department?.name} Budget Template Upload`,
-        DepartmentId: type === 0 ? departmentData?.id : budgetQueryData?.data?.department?.id,
+        Narration: `${
+          type === 0
+            ? departmentData?.name
+            : budgetQueryData?.data?.department?.name
+        } Budget Template Upload`,
+        DepartmentId:
+          type === 0
+            ? departmentData?.id
+            : budgetQueryData?.data?.department?.id,
       }).unwrap();
 
-            const newId = res?.data?.id;
+      const newId = res?.data?.id;
 
-     if (newId) {
+      if (newId) {
         setCurrentBudgetId(newId);
-    router.replace(`/dashboard/${newId}/${1}`);
-router.refresh(); // forces a re-render / data refetch
+        router.replace(`/dashboard/${newId}/${1}`);
+        router.refresh();
 
+        toast({
+          title: 'Budget template submitted successfully',
+          status: 'success',
+          duration: 3000,
+          isClosable: true,
+        });
 
-      toast({
-        title: 'Budget template submitted successfully',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-
-      setSelectedFile(null);
-      setSelectedFileName('');
-  }
-      else {
+        setSelectedFile(null);
+        setSelectedFileName('');
+      } else {
         toast({
           title: 'Created but no ID returned',
           status: 'warning',
@@ -263,10 +260,9 @@ router.refresh(); // forces a re-render / data refetch
             fontWeight="500"
             textTransform="capitalize"
           >
-  {(type === 0
-    ? departmentData?.name
-    : budget?.department?.name) || ''}{' '}
-  Budget Review
+            {(type === 0 ? departmentData?.name : budget?.department?.name) ||
+              ''}{' '}
+            Budget Review
           </Text>
         </Stack>
       </HStack>
@@ -301,20 +297,20 @@ router.refresh(); // forces a re-render / data refetch
                 Mark this submission as reviewed or pending
               </Text>
             </VStack>
-{budget && budget.budgetFiles?.length > 0 && (
-  <HStack spacing={4} bg="#EDEDED" rounded="10px" p={4}>
-    <Text color="headText.100" fontSize="14px">
-      Approve Budget
-    </Text>
-    {budget.status}
-    <Switch
-      size="md"
-      colorScheme="blue"
-      isChecked={budget.status === 3 || switchChecked}
-      onChange={handleSwitchChange}
-    />
-  </HStack>
-)}
+            {budget && budget.budgetFiles?.length > 0 && (
+              <HStack spacing={4} bg="#EDEDED" rounded="10px" p={4}>
+                <Text color="headText.100" fontSize="14px">
+                  Approve Budget
+                </Text>
+                {budget.status}
+                <Switch
+                  size="md"
+                  colorScheme="blue"
+                  isChecked={budget.status === 3 || switchChecked}
+                  onChange={handleSwitchChange}
+                />
+              </HStack>
+            )}
           </HStack>
         </Box>
 
@@ -325,32 +321,35 @@ router.refresh(); // forces a re-render / data refetch
               Version History
             </Text>
             <HStack>
-<Input
-  type="file"
-  accept=".xlsx,.xls,.csv,.pdf"
-  id="budgetFile"
-  onChange={handleFileChange}
-  display="none"
-/>
+              <Input
+                type="file"
+                accept=".xlsx,.xls,.csv,.pdf"
+                id="budgetFile"
+                onChange={handleFileChange}
+                display="none"
+              />
 
-<label htmlFor="budgetFile">
-  <ChakraButton
-    as="span"
-    size="md"
-    variant="outline"
-    border="1px solid #808080"
-    color="#333333"
-    fontWeight={400}
-    fontSize="12px"
-    borderRadius="10px"
-    rightIcon={
-      <Image src="/images/upload-2.svg" alt="upload" boxSize={5} />
-    }
-  >
-    Choose File
-  </ChakraButton>
-</label>
-
+              <label htmlFor="budgetFile">
+                <ChakraButton
+                  as="span"
+                  size="md"
+                  variant="outline"
+                  border="1px solid #808080"
+                  color="#333333"
+                  fontWeight={400}
+                  fontSize="12px"
+                  borderRadius="10px"
+                  rightIcon={
+                    <Image
+                      src="/images/upload-2.svg"
+                      alt="upload"
+                      boxSize={5}
+                    />
+                  }
+                >
+                  Choose File
+                </ChakraButton>
+              </label>
 
               {selectedFileName && (
                 <Text fontSize="sm" color="gray.600">
@@ -362,7 +361,9 @@ router.refresh(); // forces a re-render / data refetch
                 size="md"
                 colorScheme="blue"
                 onClick={handleSubmit}
-                isDisabled={!selectedFile}
+                isDisabled={!selectedFile || isUploading}
+                isLoading={isUploading}
+                loadingText="Uploading..."
               >
                 Upload
               </ChakraButton>
@@ -434,9 +435,9 @@ router.refresh(); // forces a re-render / data refetch
         </Box>
 
         {/* Comments */}
-{ id !== "00000000-0000-0000-0000-000000000000" && (
-  <Comments budgetId={id} />
-)}
+        {id !== '00000000-0000-0000-0000-000000000000' && (
+          <Comments budgetId={id} />
+        )}
       </VStack>
 
       {/* Approval Modal */}

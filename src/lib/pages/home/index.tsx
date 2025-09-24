@@ -110,12 +110,13 @@ const Home = () => {
           {userInfo?.department?.name || 'Unknown'}
         </Text>
 
-        <UploadBudgetCard
-          selectedFileName={selectedFileName}
-          isSubmitDisabled={!selectedFile || isLoading}
-          onFileChange={handleFileChange}
-          onSubmit={handleSubmit}
-        />
+<UploadBudgetCard
+  selectedFileName={selectedFileName}
+  isSubmitDisabled={!selectedFile}
+  isLoading={isLoading}
+  onFileChange={handleFileChange}
+  onSubmit={handleSubmit}
+/>
 
         {/* Status and Version History */}
         <SimpleGrid columns={[1, 2]} spacing={4} w="full">

@@ -7,6 +7,7 @@ import Button from '~/lib/components/ui/Button';
 type UploadBudgetCardProps = {
   selectedFileName?: string;
   isSubmitDisabled?: boolean;
+  isLoading?: boolean;
   onFileChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit?: () => void;
 };
@@ -14,6 +15,7 @@ type UploadBudgetCardProps = {
 const UploadBudgetCard = ({
   selectedFileName = '',
   isSubmitDisabled = true,
+  isLoading = false,
   onFileChange,
   onSubmit,
 }: UploadBudgetCardProps) => {
@@ -32,7 +34,7 @@ const UploadBudgetCard = ({
         position="relative"
       >
         <Center flexDirection="column" textAlign="center" gap={2}>
-        <Image src="/images/upload-3.svg" alt="Upload" boxSize={6} />
+          <Image src="/images/upload-3.svg" alt="Upload" boxSize={6} />
           <VStack spacing={0}>
             <Text color="brand.100" fontWeight={400} fontSize="md" as="span">
               {selectedFileName ? 'Selected file:' : 'Click to upload '}
@@ -54,7 +56,7 @@ const UploadBudgetCard = ({
         </Center>
         <input
           type="file"
-          accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          accept=".pdf,.doc,.docx,.xls,.xlsx"
           onChange={onFileChange}
           style={{
             position: 'absolute',
@@ -69,9 +71,10 @@ const UploadBudgetCard = ({
 
       <HStack justify="flex-end" mt={4}>
         <Button
-          text="Submit Budget"
+          text={isLoading ? 'Submitting...' : 'Submit Budget'}
           size="md"
-          isDisabled={isSubmitDisabled}
+          isDisabled={isSubmitDisabled || isLoading}
+          isLoading={isLoading}
           onClick={onSubmit}
         />
       </HStack>

@@ -66,7 +66,6 @@ const Report = () => {
   const { data: budgetStatData} = useGetBudgetsStatQuery(queryArgs);
   console.log(budgetStatData)
   const budgets = budgetData?.data?.result ?? [];
-  console.log(budgets)
   const mapStatus = (statusNum: number | undefined) => {
     switch (statusNum) {
       case 1:
