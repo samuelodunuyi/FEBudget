@@ -74,7 +74,7 @@ const VersionHistory = ({ budgets, isLoading = false }: VersionHistoryProps) => 
 
   const handleDelete = async (file: BudgetFile) => {
     try {
-      await deleteBudgetFile(file.budgetId).unwrap();
+      await deleteBudgetFile(file.id).unwrap();
       // eslint-disable-next-line no-alert
       alert('File deleted successfully.');
     } catch (err) {
