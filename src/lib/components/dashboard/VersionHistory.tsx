@@ -1,5 +1,6 @@
 'use client';
 
+import { DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
   HStack,
@@ -16,11 +17,12 @@ import {
 import { useState } from 'react';
 
 import Button from '~/lib/components/ui/Button';
-import { useDownloadBudgetFileMutation } from '~/lib/redux/services/budgetLine.service';
+import { useDownloadBudgetFileMutation, useDeleteBudgetMutation } from '~/lib/redux/services/budgetLine.service';
 
 export type BudgetFile = {
   updatedAt: string;
   id: string;
+  budgetId: string;
   documentUrl: string;
   version: number;
   fileName: string;
@@ -40,6 +42,7 @@ type VersionHistoryProps = {
 
 const VersionHistory = ({ budgets, isLoading = false }: VersionHistoryProps) => {
   const [downloadBudgetFile] = useDownloadBudgetFileMutation();
+  const [deleteBudgetFile] = useDeleteBudgetMutation();
   const [downloadingFileId, setDownloadingFileId] = useState<string | null>(null);
 
   if (isLoading) return <Text>Loading...</Text>;
@@ -68,6 +71,18 @@ const VersionHistory = ({ budgets, isLoading = false }: VersionHistoryProps) => 
       setDownloadingFileId(null);
     }
   };
+
+  const handleDelete = async (file: BudgetFile) => {
+    try {
+      await deleteBudgetFile(file.budgetId).unwrap();
+      // eslint-disable-next-line no-alert
+      alert('File deleted successfully.');
+    } catch (err) {
+      console.error('Delete failed:', err);
+      // eslint-disable-next-line no-alert
+      alert('Failed to delete file.');
+    }
+  }
 
   return (
     <Box bg="white" rounded="16px" p={4} border="1px solid #EDEDED">
@@ -124,22 +139,39 @@ const VersionHistory = ({ budgets, isLoading = false }: VersionHistoryProps) => 
                       })
                     : '-'}
                 </Td>
-                <Td>
-                  <Button
-                    text={downloadingFileId === file.id ? 'Downloading...' : 'Download'}
-                    size="sm"
-                    variant="outline"
-                    border="#808080"
-                    color="#333333"
-                    fontWeight={400}
-                    fontSize={12}
-                    borderRadius={10}
-                    icon={<Image src="/images/download.svg" alt="download" boxSize={5} />}
-                    iconPosition="right"
-                    isDisabled={downloadingFileId === file.id}
-                    onClick={() => handleDownload(file)}
-                  />
-                </Td>
+<Td>
+  <HStack spacing={3}>
+    <Button
+      text={downloadingFileId === file.id ? 'Downloading...' : 'Download'}
+      size="sm"
+      variant="outline"
+      border="#808080"
+      color="#333333"
+      fontWeight={400}
+      fontSize={12}
+      borderRadius={10}
+      icon={<Image src="/images/download.svg" alt="download" boxSize={5} />}
+      iconPosition="right"
+      isDisabled={downloadingFileId === file.id}
+      onClick={() => handleDownload(file)}
+    />
+
+    <Button
+      text="Delete"
+      size="sm"
+      variant="outline"
+      border="#FF4D4D"
+      color="#FF4D4D"
+      fontWeight={400}
+      fontSize={12}
+      borderRadius={10}
+      icon={<DeleteIcon boxSize={4} />}
+      iconPosition="right"
+      onClick={() => handleDelete(file)}
+    />
+  </HStack>
+</Td>
+
               </Tr>
             ))}
           </Tbody>

@@ -2,6 +2,7 @@
 
 'use client';
 
+import { DeleteIcon } from '@chakra-ui/icons';
 import {
   Box,
   HStack,
@@ -42,9 +43,19 @@ import {
   useGetBudgetQuery,
   useCreateBudgetMutation,
   useApproveBudgetMutation,
-  useDownloadBudgetFileMutation,
+  useDownloadBudgetFileMutation, useDeleteBudgetMutation
 } from '~/lib/redux/services/budgetLine.service';
 import { useGetDepartmentByIdQuery } from '~/lib/redux/services/user.service';
+
+export type BudgetFile = {
+  updatedAt: string;
+  id: string;
+  budgetId: string;
+  documentUrl: string;
+  version: number;
+  fileName: string;
+  createdAt?: string;
+};
 
 const statusMap = {
   1: { label: 'Submitted', bg: '#FF7926', color: '#FFD3B7' },
@@ -85,6 +96,7 @@ const Report = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedFileName, setSelectedFileName] = useState<string>('');
   const [approveBudget] = useApproveBudgetMutation();
+  const [deleteBudgetFile] = useDeleteBudgetMutation();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [switchChecked, setSwitchChecked] = useState(false);
   useEffect(() => {
@@ -244,6 +256,17 @@ const Report = () => {
     }
   };
 
+    const handleDelete = async (file: BudgetFile) => {
+      try {
+        await deleteBudgetFile(file.budgetId).unwrap();
+        // eslint-disable-next-line no-alert
+        alert('File deleted successfully.');
+      } catch (err) {
+        console.error('Delete failed:', err);
+        // eslint-disable-next-line no-alert
+        alert('Failed to delete file.');
+      }
+    }
   return (
     <SimpleDashboardLayout>
       <HeaderBack />
@@ -394,29 +417,46 @@ const Report = () => {
                           })
                         : '-'}
                     </Td>
-                    <Td>
-                      <HStack>
-                        <ChakraButton
-                          size="sm"
-                          variant="outline"
-                          border="#808080"
-                          color="#333333"
-                          fontWeight={400}
-                          fontSize={12}
-                          borderRadius={10}
-                          rightIcon={
-                            <Image
-                              src="/images/download.svg"
-                              alt="download"
-                              boxSize={5}
-                            />
-                          }
-                          onClick={() => handleDownload(file)}
-                        >
-                          Download
-                        </ChakraButton>
-                      </HStack>
-                    </Td>
+<Td>
+  <HStack spacing={3}>
+    <ChakraButton
+      size="sm"
+      variant="outline"
+      border="#808080"
+      color="#333333"
+      fontWeight={400}
+      fontSize={12}
+      borderRadius={10}
+      rightIcon={
+        <Image
+          src="/images/download.svg"
+          alt="download"
+          boxSize={5}
+        />
+      }
+      onClick={() => handleDownload(file)}
+    >
+      Download
+    </ChakraButton>
+
+    <ChakraButton
+      size="sm"
+      variant="outline"
+      border="1px solid #FF4D4D"
+      color="#FF4D4D"
+      fontWeight={400}
+      fontSize={12}
+      borderRadius={10}
+      rightIcon={
+        <DeleteIcon boxSize={4} />
+      }
+      onClick={() => handleDelete(file)}
+    >
+      Delete
+    </ChakraButton>
+  </HStack>
+</Td>
+
                   </Tr>
                 ))}
               </Tbody>

@@ -83,7 +83,7 @@ export const BudgetApi = createApi({
 
     deleteBudget: builder.mutation({
       query: (id) => ({
-        url: `api/v1/Budget/${id}`,
+        url: `api/v1/Budget/version/${id}`,
         method: 'DELETE',
       }),
       invalidatesTags: ['Budget'],
@@ -139,6 +139,7 @@ export const BudgetApi = createApi({
       }),
       invalidatesTags: ['BudgetChat'],
     }),
+    
 
 downloadBudgetFile: builder.mutation<Blob, string>({
   query: (budgetFileId) => ({
