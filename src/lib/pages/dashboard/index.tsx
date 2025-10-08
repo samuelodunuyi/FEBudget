@@ -92,10 +92,10 @@ const Report = () => {
   };
 
   const stats = [
-    { description: 'Total Department', value: String(budgetStat.totalDepartments || 0), bg: '#227CBF' },
-    { description: 'Pending Submission', value: String(budgetStat.pendingSubmission || 0), bg: '#808080' },
-    { description: 'Submitted', value: String(budgetStat.subtotalInReviewmittedCount || 0), bg: '#FF6633' },
-    { description: 'Approved', value: String(budgetStat.totalApproved || 0), bg: '#47B65C' },
+    { description: 'Total Department', value: String(budgetStat?.totalDepartments || 0), bg: '#227CBF' },
+    { description: 'Pending Submission', value: String(budgetStat?.pendingSubmission || 0), bg: '#808080' },
+    { description: 'Submitted', value: String(budgetStat?.subtotalInReviewmittedCount || 0), bg: '#FF6633' },
+    { description: 'Approved', value: String(budgetStat?.totalApproved || 0), bg: '#47B65C' },
   ];
 
   const heads = ['Department', 'Status', 'Last Submitted', 'Versions', 'Actions'];
