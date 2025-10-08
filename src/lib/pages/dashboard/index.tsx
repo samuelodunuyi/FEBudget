@@ -64,7 +64,7 @@ const Report = () => {
 
   const { data: budgetData, isLoading } = useGetBudgetsQuery(queryArgs);
   const { data: budgetStatData} = useGetBudgetsStatQuery(queryArgs);
-  const budgetStat = budgetStatData.data
+  const budgetStat = budgetStatData?.data
   const budgets = budgetData?.data?.result ?? [];
   const mapStatus = (statusNum: number | undefined) => {
     switch (statusNum) {
