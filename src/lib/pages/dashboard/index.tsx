@@ -64,7 +64,7 @@ const Report = () => {
 
   const { data: budgetData, isLoading } = useGetBudgetsQuery(queryArgs);
   const { data: budgetStatData} = useGetBudgetsStatQuery(queryArgs);
-  console.log(budgetStatData)
+  const budgetStat = budgetStatData.data
   const budgets = budgetData?.data?.result ?? [];
   const mapStatus = (statusNum: number | undefined) => {
     switch (statusNum) {
@@ -91,18 +91,11 @@ const Report = () => {
     }
   };
 
-  const totalDepartments = new Set(
-    budgets.map((b: any) => b.department?.id).filter(Boolean)
-  ).size;
-  const submittedCount = budgets.filter((b: any) => b.status === 1).length;
-  const pendingCount = budgets.filter((b: any) => b.status === 2).length;
-  const approvedCount = budgets.filter((b: any) => b.status === 3).length;
-
   const stats = [
-    { description: 'Total Department', value: String(totalDepartments || 0), bg: '#227CBF' },
-    { description: 'Pending Submission', value: String(pendingCount || 0), bg: '#808080' },
-    { description: 'Submitted', value: String(submittedCount || 0), bg: '#FF6633' },
-    { description: 'Approved', value: String(approvedCount || 0), bg: '#47B65C' },
+    { description: 'Total Department', value: String(budgetStat.totalDepartments || 0), bg: '#227CBF' },
+    { description: 'Pending Submission', value: String(budgetStat.pendingSubmission || 0), bg: '#808080' },
+    { description: 'Submitted', value: String(budgetStat.subtotalInReviewmittedCount || 0), bg: '#FF6633' },
+    { description: 'Approved', value: String(budgetStat.totalApproved || 0), bg: '#47B65C' },
   ];
 
   const heads = ['Department', 'Status', 'Last Submitted', 'Versions', 'Actions'];
